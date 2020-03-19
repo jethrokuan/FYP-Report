@@ -10,27 +10,26 @@
 \projyear{2019/20}
 \projnumber{H226080}
 \author{Kuan Sheng Yuan, Jethro}
-\title{Spiking Neural Networks}
+\title{Event-Driven Visual-Tactile Learning for Robots}
 \advisor{Dr.\ Harold Soh}
 \deliverables{
 	\item Report: 1 Volume}
 \maketitle
 
 \begin{abstract}
-  Spiking neural networks are third-generation neural networks that are well
-  positioned to supersede the state-of-the-art deep learning methods in problems
-  that are temporal in nature. Difficulties in training spiking neural networks
-  mean they see little use outside of academic research. We evaluate a
-  state-of-the-art gradient-based spiking neural network architectures, and
-  propose its application in two settings: (1) as an agent in a reinforcement
-  learning environment, and (2) as a controller in a robotics setting. We train
-  spiking neural agents on the OpenAI gym environment, as well as a classifier
-  on a novel multi-modal event-based dataset. The spiking neural network agents
-  outperform artificial neural networks with fewer parameters, and a desirable
-  property of being able to make early predictions.
+  In this work, we contribute an event-driven visual-tactile perception system,
+  built on spiking neural networks. Our perception system is trained, and tested
+  end-to-end on novel multi-modal event-based data for two sensor modalities:
+  (1) Tactile data, from our biologically-inspired fingertip tactile sensor,
+  NeuTouch and (2) visual data, from the Prophesee camera. We evaluate our
+  system on two robotic tasks: container classification, and slip detection. On
+  both tasks, we observe good classification accuracies relative to standard
+  deep learning methods. Our system can be run on neuromorphic hardware, making
+  this a crucial first step towards enabling power-efficient, intelligent
+  robots.
 
   \begin{keywords}
-    Spiking Neural Networks, Reinforcement Learning, Multi-modal Machine Learning
+    Spiking Neural Networks, Multi-modal Machine Learning
   \end{keywords}
 
   \begin{implement} Python 3, PyTorch
@@ -43,47 +42,79 @@
 
 \chapter{Introduction}
 
-\section{Motivation}
+Human beings are blessed with innate abilities to integrate sensory information
+from different stimuli. Our sense of smell, hearing, touch, vision, and taste
+each contribute to how we perceive and act in the world. Consider the scenario
+of fetching a carton of soy-milk from the fridge; humans use vision to locate
+the carton, and are also able to infer from grasping the object, the amount of
+soymilk the carton contains. These actions (and inferences) are performed
+robustly using a power-efficient neural substrate --- compared to popular deep
+learning approaches for using multiple sensor modalities in artificial systems,
+human brains require far less energy~\cite{li2016energyefficiency}.
 
-Deep neural networks (DNNs) have seen widespread industrial adoption, across
-tasks such as machine translation, image recognition, and in recommender
-systems. The remarkable success of deep learning can be attributed to
-advancements in gradient-based training methods and model architectures,
-allowing larger and deeper models to be trained and deployed.
+% To this end, we have seen advancements in both tactile sensing and computer
+% vision, using deep neural networks (DNNs). Different types of tactile sensors
+% have been used in robotic manipulation in slippage
+% detection~\cite{meier2016tactile} and tactile object
+% recognition~\cite{gao2016deep}. Convolutional neural networks (CNNs) have also
+% become commonplace in vision tasks, such as image segmentation, and object
+% recognition. Deep reinforcement learning has also been successfully used for
+% learn agents that are successful in performing robotic tasks, using vision
+% data~\cite{levine2017handeye}. The remarkable success of deep learning can be
+% attributed to advancements in gradient-based training methods and model
+% architectures, allowing larger and deeper models to be trained and deployed.
 
-Spiking Neural Networks (SNNs) is a nascent area of study. SNNs use neuronal
-units called spiking neurons which closely mimic the biological neuron,
-communicating via sparse, discrete spikes. This allows SNNs deployed on
-neuromorphic hardware to achieve favorable properties such as low power
-consumption, and fast inference. SNNs are rarely seen outside of academic
-research, because they remain difficult to train and have yet to outperform
-DNNs.
+In this work, we take crucial steps towards efficient visual-tactile perception
+for robotic systems. We gain inspiration from biological systems, which are
+\emph{asynchronous} and \emph{event-driven}. In contrast to resource-hungry deep
+learning methods, event-driven perception offers an alternative approach that
+promises power-efficiency and low-latency --- features that are ideal for
+real-time mobile robots. However, event-driven systems remain under-developed
+relative to standard synchronous perception methods~\cite{pfeiffer2018deep}.
 
-This thesis is a study of spiking neural networks and their applications. We are
-motivated by recent advancements in gradient-based training methods for spiking
-neural
-networks~\cite{NIPS2018_7415,NIPS2018_7417,neftci19_surrog_gradien_learn_spikin_neural_networ},
-which has brought about a resurgence of interest in the field.
+We make multiple contributions that advance event-driven visual-tactile
+perception. First, to enable richer tactile sensing, we use the NeuTouch
+fingertip sensor. Compared to existing commercially-available tactile sensors,
+NeuTouch's neuromorphic design enables scaling to larger number of taxels while
+retaining low latencies.
+
+Next, we investigate multi-modal (visual-tactile) learning using the NeuTouch
+and the Prophesee event-based camera. Specifically, we develop a
+\emph{visual-tactile spiking neural network} (VT-SNN) that incorporates both
+sensory modalities for supervised-learning tasks. Different from conventional
+deep artificial neural network (ANN) models, SNNs process discrete spikes
+asynchronously, and thus, are arguably better suited to the event data generated
+by our neuromorphic sensors. In addition, SNNs can be used on efficient
+low-power neuromorphic chips such as the Intel Loihi~\cite{davies2018loihi}.
+
+Our experiments center on two robot tasks: object classification and
+(rotational) slip detection. In the former, we tasked the robot to determine the
+type of container being handled and amount of liquid held within. The containers
+were opaque with differing stiffness, and hence, both visual and tactile sensing
+are relevant for accurate classification. We show that relatively small
+differences in weight ($\approx 30$g across 20 object-weight classes) can be
+distinguished by our prototype sensors and spiking models. Likewise, the slip
+detection experiment indicates rotational slip can be accurately detected within
+$0.08$s (visual-tactile spikes processed every $\approx 1$ms). In both
+experiments, SNNs achieved competitive (and sometimes superior) performance
+relative to ANNs with similar architecture.
+
+The work presents an exciting opportunity to enable power-efficient intelligent
+robots. Presented with labeled data, an event-driven perception network can be
+trained end-to-end, and used on neuromorphic chips as robotic controllers.
 
 \section{Research Outline}
 
-In \autoref{chp:background}, we first provide a comprehensive study on SNNs.
+This thesis is a study of spiking neural networks and their applications. In the
+duration of this research, many different research directions have been
+explored. In this report, we will list both the successful contributions, as
+well as the unsuccessful attempts, to provide a complete overview of the project.
 
-The central property of SNNs that we exploit is the following:
-
-\begin{quote}
-  Unlike DNNs, SNNs are temporal in nature: spiking neurons store as state their
-  membrane potential, which changes over time.
-\end{quote}
-
-This property of SNNs positions them to supersede state-of-the-art DNNs in
-problems that are temporal in nature.
-
-In \autoref{cha:snnrl}, we evaluate the feasibility of spiking neural networks
-as agents in a reinforcement learning setting. Reinforcement learning episodes
-often have a temporal element, due to the interdependence between states and
-actions in the environment. We hypothesised that spiking neural agents are well
-suited in many reinforcement learning settings.
+In \autoref{chp:background}, we first provide a comprehensive study on SNNs. We
+discuss why and when we should use spiking neural networks, and how to train
+them. Crucially, we draw similarities between spiking neural networks and
+recurrent neural networks, a recently discovered property that enables the
+end-to-end training of these networks using gradient-based methods.
 
 In \autoref{cha:vtsnn}, we contribute an event-driven visual-tactile
 spiking-neural network (VT-SNN), which enables fast perception on two
@@ -92,6 +123,41 @@ camera. This is a joint project between our group, the Collaborative Learning \&
 Adaptive Robots (CLeAR) group, and the AiSKIN research group, which contributed
 the NeuTouch neuromorphic touch sensor. Spiking neural networks are able to
 naturally handle the sparse and discrete event-based data.
+
+In the following chapters, we discuss several research directions we have taken
+that were later abandoned.
+
+In \autoref{cha:snnrl}, we evaluate the feasibility of spiking neural networks
+as agents in a reinforcement learning setting. Reinforcement learning episodes
+often have a temporal element, due to the interdependence between states and
+actions in the environment. We hypothesised that spiking neural agents are well
+suited in many reinforcement learning settings.
+
+\section{Individual Contributions}
+This work is a joint project between our group, the Collaborative Learning \&
+Adaptive Robots (CLeAR) group, and the TEE research group.
+
+The TEE research group contributed the novel NeuTouch tactile sensor, which was
+used to collect data for the tactile modality. The CLeAR group contributed: (1) a
+visual-tactile spiking neural network (VT-SNN) that leverages multiple event
+sensor modalities, (2) systematic experiments demonstrating the effectiveness of
+our event-driven perception system on object classification and slip detection,
+with comparisons to conventional ANN methods, and (3) visual-tactile event
+sensor datasets comprising more than 50 different object classes across the
+experiments, including RGB images and proprioceptive data from the robot.
+
+Among the contributions of the CLeAR group of which I am part of, my individual
+contributions include the experimentation (training and evaluation) of the
+VT-SNN models, as well as some guidance on the ANN models. I am also looking
+into running these models on neuromorphic hardware, to quantify the performance
+and power gains of using the spiking models. During the research process, I also
+maintained the code repository at high-quality. Model training was designed to
+be reproducible, and parameter searches could be done efficiently across
+multiple GPUs. Different experimental runs could also be plotted, and their
+results aggregated for later analyses.
+
+All work in subsequent chapters () % TODO
+are my own.
 
 \chapter{Background\label{chp:background}}
 
@@ -614,30 +680,14 @@ common in current ANN setups.
 
 \section{Introduction}
 
-To perform everyday tasks, humans fuse sensory information from multiple modalities. Consider the scenario of fetching a carton of soymilk from the fridge; humans use vision to locate the carton, and are also able to infer from grasping the object, the amount of soymilk the carton contains.
-
 In this work, we make multiple contributions that advance \emph{event-driven} visual-tactile perception in robotic systems. First, to enable richer tactile sensing, we use the NeuTouch fingertip sensor. NeuTouch's neuromorphic design enables scaling to larger number of taxels while retaining low latencies.
-
-Next, we investigate multi-modal learning with NeuTouch and the Prophesee event camera. Specifically, we develop a visual-tactile spiking neural network (VT-SNN) that incorporates both sensory modalities for supervised-learning tasks. Different from conventional deep neural network (ANN) models, SNNs process discrete spikes asynchronously, and are arguably better suited to the event data generated by these neuromorphic sensors. In addition, SNNs can be used on power-efficient neuromorphic chips such as the Intel Loihi\cite{davies2018loihi}.
 
 Our experiments center on two robot tasks: object classification and (rotational) slip detection. In the former, the robot is tasked to determine both the type of container being handled, as well as the amount of liquid held within. The containers were opaque and had different stiffness characteristics, which meant that both the visual and tactile modalities are relevant for accurate classification. We show that relatively small differences in weight ($\approx$ 30g across 20 object weight classes) can be distinguished by our prototype sensors and spiking models. Likewise, the slip detection experiment indicates rotational slip can be accurately detected within 0.09s (visual-tactile spikes processed every $\approx$ 1ms). In both experiments, SNNs achieved competitive (and sometimes superior) performance relative to ANNs with simliar architecture.
 
 The work presents an exciting opportunity to enable power-efficient intelligent robots. Presented with labeled data, an event-driven perception network can be trained end-to-end, and used on  neuromorphic chips as robotic controllers.
 
 \section{Individual Contributions}
-This work is a joint project between our group, the Collaborative Learning \&
-Adaptive Robots (CLeAR) group, and the AiSKIN research group.
 
-The AiSKIN research group contributed the NeuTouch neuromorphic touch sensor,
-which was used to collect data for the tactile modality. Within our group,
-individuals were assigned different roles, including:
-
-\begin{enumerate}
-  \item Experimental design, and data collection
-  \item Model training, for ANNs, SNNs, and state-of-the-art methods
-\end{enumerate}
-
-My role in this work was primarily the training and evaluation of the SNN models (tactile, visual, and visual-tactile) for both the object classification, and slip detection task.
 
 \bibliographystyle{apacite}
 \bibliography{socreport.bib}
