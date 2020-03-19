@@ -40,29 +40,17 @@
 % \listoftables
 \tableofcontents
 
-\chapter{Introduction}
+\chapter{Introduction\label{cha:intro}}
 
 Human beings are blessed with innate abilities to integrate sensory information
 from different stimuli. Our sense of smell, hearing, touch, vision, and taste
 each contribute to how we perceive and act in the world. Consider the scenario
 of fetching a carton of soy-milk from the fridge; humans use vision to locate
 the carton, and are also able to infer from grasping the object, the amount of
-soymilk the carton contains. These actions (and inferences) are performed
+soy-milk the carton contains. These actions (and inferences) are performed
 robustly using a power-efficient neural substrate --- compared to popular deep
 learning approaches for using multiple sensor modalities in artificial systems,
 human brains require far less energy~\cite{li2016energyefficiency}.
-
-% To this end, we have seen advancements in both tactile sensing and computer
-% vision, using deep neural networks (DNNs). Different types of tactile sensors
-% have been used in robotic manipulation in slippage
-% detection~\cite{meier2016tactile} and tactile object
-% recognition~\cite{gao2016deep}. Convolutional neural networks (CNNs) have also
-% become commonplace in vision tasks, such as image segmentation, and object
-% recognition. Deep reinforcement learning has also been successfully used for
-% learn agents that are successful in performing robotic tasks, using vision
-% data~\cite{levine2017handeye}. The remarkable success of deep learning can be
-% attributed to advancements in gradient-based training methods and model
-% architectures, allowing larger and deeper models to be trained and deployed.
 
 In this work, we take crucial steps towards efficient visual-tactile perception
 for robotic systems. We gain inspiration from biological systems, which are
@@ -105,11 +93,6 @@ trained end-to-end, and used on neuromorphic chips as robotic controllers.
 
 \section{Research Outline}
 
-This thesis is a study of spiking neural networks and their applications. In the
-duration of this research, many different research directions have been
-explored. In this report, we will list both the successful contributions, as
-well as the unsuccessful attempts, to provide a complete overview of the project.
-
 In \autoref{chp:background}, we first provide a comprehensive study on SNNs. We
 discuss why and when we should use spiking neural networks, and how to train
 them. Crucially, we draw similarities between spiking neural networks and
@@ -119,23 +102,27 @@ end-to-end training of these networks using gradient-based methods.
 In \autoref{cha:vtsnn}, we contribute an event-driven visual-tactile
 spiking-neural network (VT-SNN), which enables fast perception on two
 event-based sensors: the NeuTouch~\cite{aiskinLee}, and the Prophesee event
-camera. This is a joint project between our group, the Collaborative Learning \&
-Adaptive Robots (CLeAR) group, and the AiSKIN research group, which contributed
-the NeuTouch neuromorphic touch sensor. Spiking neural networks are able to
-naturally handle the sparse and discrete event-based data.
+camera. Here, we detail the experimental setups for the robotic tasks: object
+classification and slippage detection. We discuss our experimental results, and
+demonstrate that spiking neural networks achieve competitive (and sometimes
+superior) performance over deep learning methods, and in addition having the
+unique property of early classification.
 
-In the following chapters, we discuss several research directions we have taken
-that were later abandoned.
+This thesis was originally an exploratory project on spiking neural networks.
+In the duration of this research, several different research directions have
+been explored. In the chapters that follow, we discuss research directions we
+have taken that were later abandoned.
 
 In \autoref{cha:snnrl}, we evaluate the feasibility of spiking neural networks
-as agents in a reinforcement learning setting. Reinforcement learning episodes
-often have a temporal element, due to the interdependence between states and
-actions in the environment. We hypothesised that spiking neural agents are well
-suited in many reinforcement learning settings.
+as agents in a reinforcement learning setting. Reinforcement learning
+environments are often temporal in nature, due to the interdependence between
+states and actions in the environment. We hypothesised that spiking neural
+agents were well suited in many reinforcement learning settings.
 
 \section{Individual Contributions}
-This work is a joint project between our group, the Collaborative Learning \&
-Adaptive Robots (CLeAR) group, and the TEE research group.
+The event-driven visual-tactile perception system is a joint work between our
+group, the Collaborative Learning \& Adaptive Robots (CLeAR) group, and the TEE
+research group.
 
 The TEE research group contributed the novel NeuTouch tactile sensor, which was
 used to collect data for the tactile modality. The CLeAR group contributed: (1) a
@@ -146,15 +133,15 @@ with comparisons to conventional ANN methods, and (3) visual-tactile event
 sensor datasets comprising more than 50 different object classes across the
 experiments, including RGB images and proprioceptive data from the robot.
 
-Among the contributions of the CLeAR group of which I am part of, my individual
-contributions include the experimentation (training and evaluation) of the
-VT-SNN models, as well as some guidance on the ANN models. I am also looking
-into running these models on neuromorphic hardware, to quantify the performance
-and power gains of using the spiking models. During the research process, I also
-maintained the code repository at high-quality. Model training was designed to
-be reproducible, and parameter searches could be done efficiently across
-multiple GPUs. Different experimental runs could also be plotted, and their
-results aggregated for later analyses.
+Among the contributions of the CLeAR group, my individual contributions include
+the experimentation (training and evaluation) of the VT-SNN models, as well as
+some guidance on the ANN models. I am also looking into running these models on
+neuromorphic hardware, to quantify the performance and power gains of using the
+spiking models. During the research process, I also maintained the code
+repository at high-quality. Model training was designed to be reproducible, and
+parameter searches could be done efficiently across multiple GPUs. Different
+experimental runs could also be plotted, and their results aggregated for later
+analyses.
 
 All work in subsequent chapters () % TODO
 are my own.
@@ -419,6 +406,52 @@ Intel's Loihi chip, each core contains a learning engine that can update
 synaptic weights using the 4-bit microcode-programmed learning rules that are
 associated with that synapse. This opens up areas for online learning.
 
+\chapter{Event-driven Visual-Tactile Sensing and Learning for Robots\label{cha:vtsnn}}
+
+In \autoref{cha:intro}, we have alluded to VT-SNN, an event-driven
+visual-tactile perception system using spiking neural networks. This chapter
+describes the work done on that project. In \autoref{sec:snnrl_related}, we
+discuss the prior art for visual-tactile systems. In \autoref{sec:snnrl_vtsnn},
+we discuss model architecture and model training. In
+\autoref{sec:snnrl_exp_setup}, we detail the robot hardware setup used across
+our experiments. Next, we discuss our experimental methods and results for our
+two robotics tasks: container classification
+(\autoref{sec:snnrl_container_class}), and slippage detection
+(\autoref{sec:snnrl_slippage}). We run the trained models on the Intel Loihi
+in~\autoref{sec:snnrl_neuromorphic} to quantify the gains in power-efficiency
+and inference speeds. Finally, we conclude our work
+(\autoref{sec:snnrl_conclusion}), and provide future research directions
+(\autoref{sec:snnrl_future_work}).
+
+This work has been submitted to ROS 2020.
+
+\section{Related Work\label{sec:snnrl_related}}
+% To this end, we have seen advancements in both tactile sensing and computer
+% vision, using deep neural networks (DNNs). Different types of tactile sensors
+% have been used in robotic manipulation in slippage
+% detection~\cite{meier2016tactile} and tactile object
+% recognition~\cite{gao2016deep}. Convolutional neural networks (CNNs) have also
+% become commonplace in vision tasks, such as image segmentation, and object
+% recognition. Deep reinforcement learning has also been successfully used for
+% learn agents that are successful in performing robotic tasks, using vision
+% data~\cite{levine2017handeye}. The remarkable success of deep learning can be
+% attributed to advancements in gradient-based training methods and model
+% architectures, allowing larger and deeper models to be trained and deployed.
+
+\section{Visual-Tactile Spiking Neural Network (VT-SNN)\label{sec:snnrl_vtsnn}}
+
+\section{Robot and Sensors Setup\label{sec:snnrl_exp_setup}}
+
+\section{Container \& Weight Classification\label{sec:snnrl_container_class}}
+
+\section{Rotational Slippage Classification\label{sec:snnrl_slippage}}
+
+\section{Gains on Neuromorphic Hardware\label{sec:snnrl_neuromorphic}}
+
+\section{Conclusion\label{sec:snnrl_conclusion}}
+
+\section{Future work\label{sec:snnrl_future_work}}
+
 \chapter{Reinforcement learning in Spiking Neural Networks\label{cha:snnrl}}
 
 To achieve the first milestone (see \autoref{sec:milestones}), I begin this
@@ -440,90 +473,6 @@ collected before any conclusions are statistically significant. My experiments
 were run before the STMNIST dataset was updated. I have included my experimental
 results on this small dataset, as well as experimental results attained
 independently on the larger dataset for posterity.
-
-\section{Milestone 1: Supervised Learning on the STMNIST dataset}
-
-\subsection{The STMNIST dataset}
-
-The STMNIST dataset is an unreleased dataset consisting of 200 samples, prepared
-by handwriting digits from 0 to 9, on a $10 \times 10$ tactile sensor grid
-\footnote{The STMNIST dataset preparation is a work-in-progress, and has grown
-  to a sizable 7000 samples since I last worked with it.}. The data is of
-dimension \((10, 10, t)\), where \(t\) is the number of time-steps for that
-particular sequence, \(t\) goes up to \(20,000\). The values are either 0, -1 or
-1, repesenting no spike, positive and negative spikes respectively. This dataset
-poses a few unique challenges:
-
-\begin{enumerate}
-\item Unlike existing spiking datasets like the NMNIST
-dataset~\cite{10.3389/fnins.2015.00481}, the data is highly sparse: at each
-time-step, few neurons spike, which is consistent with spike trains that occur
-in the brain.
-\item The dataset has an extremely large number of time-steps, which is a
-challenge for gradient-based methods such as backpropagation through time.
-\end{enumerate}
-
-This dataset is designed for the supervised learning task of predicting the
-correct digit, given the spiking input.
-
-\subsection{Establishing Baselines}
-
-If we squash all time-steps together and binarize the values to 0s and 1s, we
-re-obtain the hand-drawn digit\footnote{Colab notebook
-\href{https://colab.research.google.com/drive/1EEZSOmGzvNcsGbCXiw1p7GyM5RBVv4uy}{here}.}. We
-can then train a MLP or CNN on the resultant image with regular supervised
-learning techniques. We use these trained models as our baselines. If it is
-indeed true that relative spike timings encode useful temporal information, then
-these baseline models discard all such temporal information, and should have
-weaker performance.
-
-This method achieves a test accuracy of about 75\%\footnote{Colab notebook
-  \href{https://colab.research.google.com/drive/1Tig07aWvKKDnJ1VUwUf31wLpUjvupGDp}{here}.}. The
-AiSKIN team has independently trained a CNN on the updated, larger dataset, and
-obtained an accuracy of just above 80\%.
-
-\subsection{Evaluating Ihmehimmeli}
-
-We encode the information temporally as described in the paper, by using the
-time to first spike for each cell in the 10 by 10 grid
-~\cite{comsa19_tempor_codin_spikin_neural_networ}\footnote{Colab notebook
-\href{https://colab.research.google.com/drive/144bSlbCXV8Rce0mAvq42byq3alMW7PXl}{here}.}. We
-evaluate their model with the same hyperparameters the authors used for the
-original MNIST problem, and achieved a similar accuracy of 75\%, demonstrating
-that time-to-first-spike provides sufficient information for this classification
-task.
-
-\subsection{Evaluating SLAYER}
-
-Because we had decided that the STMNIST dataset was not able to provide
-conclusive results because of the small number of samples, we had given feedback
-to the AiSKIN team to collect more data, and opted not to run this experiment
-for SLAYER.\@ I had shifted my research focus towards the reinforcement learning
-side of things after this decision.
-
-SLAYER was eventually evaluated by other researchers in the lab group on the
-larger dataset, with reported test accuracies of 92.7\%. This is significantly
-higher than the baseline CNN model trained by the AiSKIN team.
-
-I summarise the evaluation results in \autoref{tab:stmnist_results}.
-
-\begin{table}[htbp]
-\caption{\label{tab:stmnist_results} Test accuracies of models trained on the
-STMNIST dataset. Caveat: the results have no error-bars, communicated via
-word-of-mouth, and hyperparameters are not communicated. The objective of these
-runs are to get a rough idea of whether these models are performant: this is not
-the main evaluation task.}  \centering
-\begin{tabular}{llll}
-  \toprule
-  Dataset & Baseline CNN & ihmehimmeli & SLAYER \\
-  \midrule Initial & 75\% & 75\% & --- \\
-  Updated & 80\% & --- & 92.7\%\\
-  \bottomrule
-\end{tabular}
-\end{table}
-
-
-\section{Milestone 2: Reinforcement Learning on the Cartpole Environment}
 
 \subsection{The Cartpole Environment}
 
@@ -675,19 +624,6 @@ exploiting the temporal information encoded in the relative timing between
 spikes (in this case, number of timesteps) and that each spiking neuron stores
 such temporal state, without the use of recurrent networks or replay buffers
 common in current ANN setups.
-
-\chapter{Event-driven Visual-Tactile Sensing with Spiking Neural Networks\label{cha:vtsnn}}
-
-\section{Introduction}
-
-In this work, we make multiple contributions that advance \emph{event-driven} visual-tactile perception in robotic systems. First, to enable richer tactile sensing, we use the NeuTouch fingertip sensor. NeuTouch's neuromorphic design enables scaling to larger number of taxels while retaining low latencies.
-
-Our experiments center on two robot tasks: object classification and (rotational) slip detection. In the former, the robot is tasked to determine both the type of container being handled, as well as the amount of liquid held within. The containers were opaque and had different stiffness characteristics, which meant that both the visual and tactile modalities are relevant for accurate classification. We show that relatively small differences in weight ($\approx$ 30g across 20 object weight classes) can be distinguished by our prototype sensors and spiking models. Likewise, the slip detection experiment indicates rotational slip can be accurately detected within 0.09s (visual-tactile spikes processed every $\approx$ 1ms). In both experiments, SNNs achieved competitive (and sometimes superior) performance relative to ANNs with simliar architecture.
-
-The work presents an exciting opportunity to enable power-efficient intelligent robots. Presented with labeled data, an event-driven perception network can be trained end-to-end, and used on  neuromorphic chips as robotic controllers.
-
-\section{Individual Contributions}
-
 
 \bibliographystyle{apacite}
 \bibliography{socreport.bib}
