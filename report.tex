@@ -1,10 +1,15 @@
 \documentclass[fyp]{socreport}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{charter}
 \usepackage{fullpage}
 \usepackage{hyperref}
 \usepackage{amsmath}
-\usepackage{apacite}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage[backend=biber,sorting=none]{biblatex}
+\addbibresource{socreport.bib}
+
 \begin{document}
 \pagenumbering{roman}
 \projyear{2019/20}
@@ -93,7 +98,7 @@ trained end-to-end, and used on neuromorphic chips as robotic controllers.
 
 \section{Research Outline}
 
-In \autoref{chp:background}, we first provide a comprehensive study on SNNs. We
+In \autoref{cha:background}, we first provide a comprehensive study on SNNs. We
 discuss why and when we should use spiking neural networks, and how to train
 them. Crucially, we draw similarities between spiking neural networks and
 recurrent neural networks, a recently discovered property that enables the
@@ -146,7 +151,7 @@ analyses.
 All work in subsequent chapters () % TODO
 are my own.
 
-\chapter{Background\label{chp:background}}
+\chapter{Background\label{cha:background}}
 
 This chapter provides background knowledge about spiking neural networks. It
 reviews the differences between deep neural networks, and spiking neural
@@ -159,38 +164,219 @@ networks (\ref{sec:train-spik-neur}), and give some future directions.
 
 Neural network models can be classified into three generations, according to
 their computational units: perceptrons, non-linear units, and spiking
-neurons~\cite{MAASS19971659}.
+neurons~\cite{MAASS19971659}. Perceptrons can be composed to produce a variety
+of models, including Boltzmann machines and Hopfield networks. One
+characteristic feature of perceptrons is that only give digital output.
 
-Perceptrons can be composed to produce a variety of models, including Boltzmann
-machines and Hopfield networks. Non-linear units are currently the most widely
-used computational unit, responsible for the explosion of progress in machine
-learning research, in particular, the success of deep learning. These units
-traditionally apply differentiable, non-linear activation functions such across
-a weighted sum of input values.
+Non-linear units apply an activation function with a continuous set of possible
+output values to a weighted sum of the inputs. Classic examples of networks of
+this second generation include feed-forward and recurrent sigmoidal neural
+networks. These networks are able to compute functions with analog input and
+output. Non-linear units are currently the most widely used computational unit,
+and is responsible for the explosion of progress in machine learning research,
+in particular, the success of deep learning. This is largely because networks
+built with these units are trainable with well-researched gradient-based
+methods, such as backpropagation.
 
-There are two reasons second-generation computational units have seen so much
-success. First, the computational power of these units is greater than that of
-first-generation neural networks. Networks built with second-generation
-computational units with one hidden layer are universal approximators for any
-continuous function with a compact domain and range~\cite{Cybenko1989}. Second,
-networks built with these units are trainable with well-researched
-gradient-based methods, such as backpropagation.
+Despite being biologically inspired, second-generation neural networks (ANNs)
+bear little resemblance to the human cortex. In contrast to the digital
+computation in ANNs, networks of neurons perform fast analog computations. This
+inspired a the third generation of neural networks use computational units
+called \emph{spiking neurons}, which communicate via discrete spikes. Much like
+our biological neurons, spiking neurons are connected to each other at synapses,
+receiving incoming signals at the dendrites, and sending spikes to other
+downstream neurons via the axon. Each computational unit stores its membrane
+potential, which fluctuates over time based on well-defined neuronal dynamics.
+Rather than firing at each propagation cycle, these computational units fire
+only when their individual membrane potentials crosses its firing threshold.
 
-The third generation of neural networks use computational units called spiking
-neurons. Much like our biological neurons, spiking neurons are connected to each
-other at synapses, receiving incoming signals at the dendrites and sending
-spikes to other neurons via the axon. Each computational unit stores some state:
-in particular, it stores its membrane potential at any point in time. Rather
-than fire at each propagation cycle, these computational units fire only when
-their individual membrane potentials crosses its firing threshold. A simple
-spiking neuron model is given in \autoref{spike_model}.
+\begin{table}
+  \centering
+  \small
+  \begin{tabular}{ l|ccc }
+    \hline
+    \hline
+    \textbf{Name} & \textbf{Input} & \textbf{Output} & \textbf{Examples} \\
+    \hline
+    (1) Perceptrons & Digital & Digital & Hopfield Networks, Boltzmann Machines \\
+    (2) Non-linear Units & Digital/Analog & Digital/Analog & Feed-forward \& Recurrent ANNs \\
+    (3) Spiking Neurons & Analog & Analog & Feed-forward SNNs \\
+    \hline
+    \hline
+  \end{tabular}
+  \normalsize
+  \caption{\label{tab:nn_generations} The three generations of neural networks. }
+\end{table}
 
-From this section onwards, we shall term second-generation neural networks
-Artificial Neural Networks (ANNs), and third-generation neural networks Spiking
-Neural Networks (SNNs).
+Henceforth, we shall term second-generation neural networks artificial neural
+networks (ANNs), and third-generation neural networks spiking neural networks
+(SNNs).
+
+\section{Motivating Spiking Neural Networks\label{sec:motiv-spik-neur}}
+
+Since ANNs have excellent performance, and can handle both digital and analog
+input and output, why should we bother with spiking neural networks? In this
+section, we motivate spiking neural networks from various perspectives.
+
+\subsection{Information Encoding via Spikes}
+
+To directly compare ANNs and SNNs, one can consider the real-valued outputs of
+ANNs to be the firing rate of a spiking neuron in steady state. In fact, this
+scheme, termed \emph{rate coding}, has been used to explain computational
+processes in the brain~\cite{pfeiffer2018deep}.
+
+However, experiments have shown that different actions are taken based on single
+spikes~\cite{stemmler96_singl_spike_suffic}. In addition, the humans are capable
+of performing tasks such as visual pattern analysis and pattern classification
+in 100ms~\cite{thorpe2001spike}. Rate coding strategies are far too inefficient
+for the rapid information transmission required for sensory processing. In
+addition, the firing distribution of biological neurons is heavily skewed
+towards lower firing rates. To obtain a good estimate of the firing rate, many
+spikes would be required.
+
+Different from ANNs, spiking neuron models are able to encode information beyond
+the average firing rate: these models also utilize the relative timing between
+spikes~\cite{guetig14_to_spike_or_when_to_spike}, or spike phases (in-phase or
+out-of-phase). These time-dependent codes are termed \emph{temporal codes}, and
+play an important role in biology. It has also been successfully demonstrated
+that temporal coding achieves competitive empirical performance on
+classification tasks for both generated datasets, as well as image datasets like
+MNIST and CIFAR~\cite{comsa19_tempor_codin_spikin_neural_networ}.
+
+There is additional benefit to encoding information directly in the temporal
+domain. Architectures for atemporal artificial neural networks using a memory
+mechanism, such as the LSTM, have been proposed. However, in these networks,
+every neuron wait on the activation of all neurons in previous layers before
+producing an answer. In spiking neural networks, the output layers spike over
+time, and predictions can be made at any time-step. Hence, SNNs are able to
+operate in two regimes. The first regime is a highly accurate but slow regime,
+where predictions are made at later time-steps. This is the regime that
+atemporal ANNs support, where predictions are typically made only after a fixed
+time-step $T$. The second regime is a low accuracy but fast regime, where the
+network fast predictions, at a much lower accuracy. This behaviour mirrors the
+speed-accuracy tradeoff observed in human
+decision-making~\cite{comsa19_tempor_codin_spikin_neural_networ}, and we also
+observe and exploit this property in our work described in~\autoref{cha:vtsnn}.
+
+By observing that biological neurons use spikes to communicate information, a
+wide range of coding schemes have been developed. Each of these codes have
+different information capacities, and their pros and cons. We defer this
+discussion to~\cite{thorpe2001spike}, but summarize the coding schemes
+in~\autoref{tab:coding_schemes}. Spiking neural networks are able to take
+advantage of these various coding schemes.
+
+\begin{table}
+  \centering
+  \small
+  \begin{tabular}{l|c}
+    \hline
+    \hline
+    \textbf{Coding Scheme} & \textbf{Encoding of Information} \\
+    Rate Coding & Firing rate of neurons \\
+    Count Code & Count of number of neurons that spike during in time window \\
+    Binary Code & Binary pattern of length $N$ from $N$ neurons (e.g. $0010$,
+                  where the third neuron spiked) \\
+    Temporal Code & Time of each spike in the spike
+                    train \\
+    Rank Code & Order in which neurons fire \\
+    Synchrony Code & Patterns from a population of neurons \\
+    \hline
+    \hline
+  \end{tabular}
+  \normalsize
+  \caption{Coding Schemes in Spiking Neural Networks}
+  \label{tab:coding_schemes}
+\end{table}
+
+\subsection{Practical Benefits}
+
+\subsubsection{Real-time Performance and Parallelism}
+The ability to communicate information in a small number of spikes has immense
+practical benefit.
+
+First, the analog communication modeled in spiking neurons allow for naturally
+parallel and high-speed computation. The promise of real-time performance is a
+key motivator behind the development of neuromorphic hardware. Typical hardware
+such as the everyday computer uses the von Neumann architecture, which separates
+memory and processing, which has severe implications on performance.
+Neuromorphic hardware collocates memory and processing, overcoming the von
+Neumann bottleneck~\cite{Backus_1978}.
+
+\subsubsection{Power Efficiency}
+Next, the primary motivation cited in present-day literature is the
+power-efficiency of spiking neural networks. First, less energy is used in
+propagating fewer spikes. Second, communication via spikes is much more
+computationally efficient than the floating point arithmetic performed in
+artificial neural networks. This low energy footprint is a highly desirable
+trait in robotics applications.
+
+\subsubsection{Biological Plausibility\label{bioplausible}}
+A faction of the machine learning and neurobiology community strives for
+emulation of the biological brain. There are several incompatibilities between
+ANNs and the current state of neurobiology that are not easily reconciliated.
+
+First, neurons in ANNs communicate via continuous-valued activations.  This is
+contrary to neurobiological research, which shows that communication between
+biological neurons communicate by broadcasting spike trains: trains of action
+potentials to downstream neurons. The spikes are to a first-order approximation
+of uniform amplitude, unlike the continuous-valued activations of ANNs.
+
+Second, backpropagation as a learning procedure also presents incompatibilities
+with the biological brain~\cite{TAVANAEI201947}. Consider the chain rule in
+backpropagation:
+
+\begin{equation}
+  \label{chainrule}
+  \delta_{j}^{\mu}=g^{\prime}\left(a_{j}^{\mu}\right) \sum_{k} w_{k j} \delta_{k}^{\mu}
+\end{equation}
+
+\(\delta_{j}^{\mu}\) and \(\delta_{k}^{\mu}\) denote the partial derivatives of
+the cost function for input pattern \(\mu\) with respect to the net input to
+some arbitrary unit \(j\) or \(k\). Unit \(j\) projects feed-forward connections
+to the set of units indexed by \(k\). \(g(\cdot)\) is the activation function
+applied to the net input of unit \(j\), denoted \(a_j^{\mu}\), \(w_{kj}\) are
+the feedforward weights projecting from unit \(j\) to the set of units indexed
+by \(k\).
+
+The chain rule formulation presents two problems. First, the gradients
+\(g'(\cdot)\) requires derivatives, but \(g(\cdot)\) in spiking neurons is
+represented by sum of Dirac delta functions, for which derivatives do not
+exist. Second, the expression \(\sum_{k} w_{k j} \delta_{k}^{\mu}\) uses
+feedforward weights in a feedback fashion. This mean that backpropagation is
+only possible in the presence of symmetric feedback weights, but these do not
+exist in the brain. In addition, during backpropagation the error assignment for
+each neuron is computed using non-local information.
+
+\subsubsection{Online Learning and Fault Tolerance}
+
+Biological neurons brain evolve and adapt as time passes, creating new
+connections, and destroying old ones. While the phenomenon of
+\emph{neuroplasticity} is not yet well understood, it is hoped that the learning
+mechanisms behind human intelligence will inspire a new generation of online
+learning algorithms.
+
+Neurons also frequently perish, and the human brain has the ability to
+self-heal. In the same way, spiking neural network architectures can be designed
+to possess the same self-healing and fault tolerance characteristics. This is a
+desirable trait for systems where uptime is critical.
+
+In conclusion, the main motivations for spiking neural networks are the
+following:
+
+\begin{itemize}
+  \item Neuromorphic hardware can overcome the von Neumann bottleneck
+  \item When combined with neuromorphic hardware, SNNs can:
+  \begin{itemize}
+    \item achieve real-time performance via asynchronous spiking communication
+    \item achieve low power consumption from sparse spiking computation
+    \item implement plasticity-inspired online learning mechanisms
+    \item Fault tolerance beyond what von Neumann architectures can provide
+  \end{itemize}
+  \item Some SNNs have biologically-plausible neuron models, which can help
+  answer open questions in neuroscience
+\end{itemize}
 
 \section{A Spiking Neuron Model\label{sec:spiking-neuron-model}}
-
 In spiking neural networks, neurons exchange information via spikes, and the
 information received depends on:
 
@@ -235,65 +421,6 @@ where \(\delta(x)\) is the Dirac-delta function with \(\delta(x) = 0\) for
 \(x \ne 0\) and \(\int_{-\infty}^{\infty} \delta(x)dx = 1\). Spikes are thus
 reduced to points in time.
 
-\section{Motivating Spiking Neural Networks\label{sec:motiv-spik-neur}}
-
-Since second-generation neural networks have excellent performance, why bother
-with spiking neural networks? In this section, we motivate spiking neural
-networks from various perspectives.
-
-\subsection{Information Encoding}
-
-To directly compare ANNs and SNNs, one can consider the real-valued outputs of
-ANNs to be the firing rate of a spiking neuron in steady state. In fact, such
-rate coding has been used to explain computational processes in the
-brain~\cite{pfeiffer2018deep}. Spiking neuron models encode information beyond
-the average firing rate: these models also utilize the relative timing between
-spikes~\cite{guetig14_to_spike_or_when_to_spike}, or spike phases (in-phase or
-out-of-phase). These time-dependent codes are termed temporal codes, and play an
-important role in biology. First, research has shown that different actions are
-taken based on single spikes~\cite{stemmler96_singl_spike_suffic}. Second,
-relying on the average firing rate would greatly increase the latency of the
-brain, and our brain often requires decision-making long before several spikes
-are accumulated.  It has also been successfully demonstrated that temporal
-coding achieves competitive empirical performance on classification tasks for
-both generated datasets, as well as image datasets like MNIST and
-CIFAR~\cite{comsa19_tempor_codin_spikin_neural_networ}.
-
-\subsection{Biological Plausibility\label{bioplausible}}
-
-A faction of the machine learning and neurobiology community strives for
-emulation of the biological brain. There are several incompatibilities between
-ANNs and the current state of neurobiology that are not easily reconciliated.
-
-First, neurons in ANNs communicate via continuous-valued activations.  This is
-contrary to neurobiological research, which shows that communication between
-biological neurons communicate by broadcasting spike trains: trains of action
-potentials to downstream neurons. The spikes are to a first-order approximation
-of uniform amplitude, unlike the continuous-valued activations of ANNs.
-
-Second, backpropagation as a learning procedure also presents incompatibilities
-with the biological brain~\cite{TAVANAEI201947}.  Consider the chain rule in
-backpropagation:
-
-\begin{equation} \label{chainrule} \delta_{j}^{\mu}=g^{\prime}\left(a_{j}^{\mu}\right) \sum_{k} w_{k j} \delta_{k}^{\mu}
-\end{equation}
-
-\(\delta_{j}^{\mu}\) and \(\delta_{k}^{\mu}\) denote the partial derivatives of
-the cost function for input pattern \(\mu\) with respect to the net input to
-some arbitrary unit \(j\) or \(k\). Unit \(j\) projects feed-forward connections
-to the set of units indexed by \(k\).  \(g(\cdot)\) is the activation function
-applied to the net input of unit \(j\), denoted \(a_j^{\mu}\), \(w_{kj}\) are
-the feedforward weights projecting from unit \(j\) to the set of units indexed
-by \(k\).
-
-The chain rule formulation presents two problems. First, the gradients
-\(g'(\cdot)\) requires derivatives, but \(g(\cdot)\) in spiking neurons is
-represented by sum of Dirac delta functions, for which derivatives do not
-exist. Second, the expression \(\sum_{k} w_{k j} \delta_{k}^{\mu}\) uses
-feedforward weights in a feedback fashion. This mean that backpropagation is
-only possible in the presence of symmetric feedback weights, but these do not
-exist in the brain. In addition, during backpropagation the error assignment for
-each neuron is computed using non-local information.
 
 \subsection{Neuromorphic Hardware\label{neuromorphic}}
 
@@ -426,6 +553,11 @@ and inference speeds. Finally, we conclude our work
 This work has been submitted to ROS 2020.
 
 \section{Related Work\label{sec:snnrl_related}}
+
+In this section, we give an overview of related work on visual-tactile perception for robotics. Much of the work on event-based perception has been covered in~\autoref{cha:background}, and will not be repeated here.
+
+\subsection{Visual-Tactile Perception for Robots}
+
 % To this end, we have seen advancements in both tactile sensing and computer
 % vision, using deep neural networks (DNNs). Different types of tactile sensors
 % have been used in robotic manipulation in slippage
@@ -608,7 +740,7 @@ spikes (in this case, number of timesteps) and that each spiking neuron stores
 such temporal state, without the use of recurrent networks or replay buffers
 common in current ANN setups.
 
-\bibliographystyle{apacite}
-\bibliography{socreport.bib}
+\printbibliography
+
 \appendix
 \end{document}
