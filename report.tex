@@ -7,7 +7,11 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage[backend=biber,sorting=none]{biblatex}
+\usepackage[dvipsnames,table]{xcolor}
+\usepackage[backend=biber,citestyle=ieee,sorting=none]{biblatex}
+\usepackage{color}
+\input{macros.tex}
+
 \addbibresource{socreport.bib}
 
 \begin{document}
@@ -18,10 +22,11 @@
 \title{Event-Driven Visual-Tactile Learning for Robots}
 \advisor{Dr.\ Harold Soh}
 \deliverables{
-	\item Report: 1 Volume}
+  \item Report: 1 Volume}
 \maketitle
 
 \begin{abstract}
+  \DRAFT
   In this work, we contribute an event-driven visual-tactile perception system,
   built on spiking neural networks. Our perception system is trained, and tested
   end-to-end on novel multi-modal event-based data for two sensor modalities:
@@ -148,7 +153,7 @@ parameter searches could be done efficiently across multiple GPUs. Different
 experimental runs could also be plotted, and their results aggregated for later
 analyses.
 
-All work in subsequent chapters () % TODO
+All work in subsequent chapters ()\fixme{fill this in}
 are my own.
 
 \chapter{Background\label{cha:background}}
@@ -244,19 +249,19 @@ classification tasks for both generated datasets, as well as image datasets like
 MNIST and CIFAR~\cite{comsa19_tempor_codin_spikin_neural_networ}.
 
 There is additional benefit to encoding information directly in the temporal
-domain. Architectures for atemporal artificial neural networks using a memory
-mechanism, such as the LSTM, have been proposed. However, in these networks,
-every neuron wait on the activation of all neurons in previous layers before
-producing an answer. In spiking neural networks, the output layers spike over
-time, and predictions can be made at any time-step. Hence, SNNs are able to
-operate in two regimes. The first regime is a highly accurate but slow regime,
-where predictions are made at later time-steps. This is the regime that
-atemporal ANNs support, where predictions are typically made only after a fixed
-time-step $T$. The second regime is a low accuracy but fast regime, where the
-network fast predictions, at a much lower accuracy. This behaviour mirrors the
-speed-accuracy tradeoff observed in human
-decision-making~\cite{comsa19_tempor_codin_spikin_neural_networ}, and we also
-observe and exploit this property in our work described in~\autoref{cha:vtsnn}.
+domain. Architectures for atemporal artificial neural networks that use a memory
+mechanism, such as the LSTM~\cite{hochreiter1997long}, require every neuron wait
+on the activation of all neurons in previous layers before producing an answer.
+In spiking neural networks, the output layers spike over time, and predictions
+can be made at any time-step. Hence, SNNs are able to operate in two regimes.
+The first regime is a highly accurate but slow regime, where predictions are
+made at later time-steps. This is the regime that atemporal ANNs support, where
+predictions are typically made only after a fixed time-step. The second regime
+is a low accuracy but fast regime, where the network fast predictions, at a much
+lower accuracy. This behaviour mirrors the speed-accuracy tradeoff observed in
+human decision-making~\cite{comsa19_tempor_codin_spikin_neural_networ}, and we
+also observe and exploit this property in our work described
+in~\autoref{cha:vtsnn}.
 
 By observing that biological neurons use spikes to communicate information, a
 wide range of coding schemes have been developed. Each of these codes have
@@ -290,14 +295,15 @@ advantage of these various coding schemes.
 
 \subsection{Practical Benefits}
 
-\subsubsection{Real-time Performance and Parallelism}
 The ability to communicate information in a small number of spikes has immense
-practical benefit.
+practical benefits.
 
-First, the analog communication modeled in spiking neurons allow for naturally
-parallel and high-speed computation. The promise of real-time performance is a
-key motivator behind the development of neuromorphic hardware. Typical hardware
-such as the everyday computer uses the von Neumann architecture, which separates
+\subsubsection{Real-time Performance and Parallelism}
+
+The analog communication modeled in spiking neurons allow for naturally parallel
+and high-speed computation. The promise of real-time performance is a key
+motivator behind the development of neuromorphic hardware. Typical hardware such
+as the everyday computer uses the von Neumann architecture, which separates
 memory and processing, which has severe implications on performance.
 Neuromorphic hardware collocates memory and processing, overcoming the von
 Neumann bottleneck~\cite{Backus_1978}.
@@ -310,16 +316,31 @@ computationally efficient than the floating point arithmetic performed in
 artificial neural networks. This low energy footprint is a highly desirable
 trait in robotics applications.
 
-\subsubsection{Biological Plausibility\label{bioplausible}}
-A faction of the machine learning and neurobiology community strives for
-emulation of the biological brain. There are several incompatibilities between
-ANNs and the current state of neurobiology that are not easily reconciliated.
+\subsubsection{Online Learning and Fault Tolerance}
 
-First, neurons in ANNs communicate via continuous-valued activations.  This is
-contrary to neurobiological research, which shows that communication between
-biological neurons communicate by broadcasting spike trains: trains of action
-potentials to downstream neurons. The spikes are to a first-order approximation
-of uniform amplitude, unlike the continuous-valued activations of ANNs.
+Biological neurons brain evolve and adapt as time passes, creating new
+connections, and destroying old ones. While the phenomenon of
+\emph{neuroplasticity} is not yet well understood, it is hoped that the learning
+mechanisms behind human intelligence will inspire a new generation of online
+learning algorithms.
+
+Neurons also frequently perish, and the human brain has the ability to
+self-heal. In the same way, spiking neural network architectures can be designed
+to possess the same self-healing and fault tolerance characteristics. This is a
+desirable trait for systems where uptime is critical.
+
+\subsection{Biological Plausibility\label{bioplausible}}
+In addition to having practical benefits, spiking neural networks more closely
+model the biological brain. A faction of the machine learning and neurobiology
+community strives for emulation of the biological brain. There are several
+incompatibilities between ANNs and the current state of neurobiology that are
+difficult to reconcile.
+
+First, neurons in ANNs communicate via continuous-valued activations. In
+contrast, it is well established that biological neurons communicate by
+broadcasting spike trains --- trains of action potentials --- to downstream
+neurons. The spikes are to a first-order approximation of uniform amplitude,
+unlike the continuous-valued activations of ANNs.
 
 Second, backpropagation as a learning procedure also presents incompatibilities
 with the biological brain~\cite{TAVANAEI201947}. Consider the chain rule in
@@ -347,19 +368,10 @@ only possible in the presence of symmetric feedback weights, but these do not
 exist in the brain. In addition, during backpropagation the error assignment for
 each neuron is computed using non-local information.
 
-\subsubsection{Online Learning and Fault Tolerance}
+This result motivates the search for alternative learning mechanisms for spiking
+neural networks. We discuss this in detail in~\autoref{sec:train-spik-neur}.
 
-Biological neurons brain evolve and adapt as time passes, creating new
-connections, and destroying old ones. While the phenomenon of
-\emph{neuroplasticity} is not yet well understood, it is hoped that the learning
-mechanisms behind human intelligence will inspire a new generation of online
-learning algorithms.
-
-Neurons also frequently perish, and the human brain has the ability to
-self-heal. In the same way, spiking neural network architectures can be designed
-to possess the same self-healing and fault tolerance characteristics. This is a
-desirable trait for systems where uptime is critical.
-
+\subsection{Summary}
 In conclusion, the main motivations for spiking neural networks are the
 following:
 
@@ -376,7 +388,9 @@ following:
   answer open questions in neuroscience
 \end{itemize}
 
-\section{A Spiking Neuron Model\label{sec:spiking-neuron-model}}
+\section{Spiking Neuron Models\label{sec:spiking-neuron-model}}
+
+
 In spiking neural networks, neurons exchange information via spikes, and the
 information received depends on:
 
@@ -475,7 +489,13 @@ weight \(0 \le w \le w_{\max}\), characterizing its strength, and its change
 depends on the exact moments \(t_{pre}\) of pre-synaptic spikes and \(t_{post}\)
 of post-synaptic spikes~\cite{sboev18_spikin_neural_networ_reinf_learn}:
 
-\begin{equation} \Delta w=\left\{\begin{array}{l}{-\alpha \lambda \cdot \exp \left(-\frac{t_{\mathrm{pre}}-t_{\mathrm{post}}}{\tau_{-}}\right), \text {if } t_{\mathrm{pre}}-t_{\mathrm{post}}>0} \\ {\lambda \cdot \exp \left(-\frac{t_{\mathrm{post}}-t_{\mathrm{pre}}}{\tau_{+}}\right), \text {if } t_{\mathrm{pre}}-t_{\mathrm{post}}<0}\end{array}\right.
+\begin{equation}
+  \Delta w=\left\{\begin{array}{l}{
+                    -\alpha \lambda \cdot \exp \left(-\frac{t_{\mathrm{pre}}-t_{\mathrm{post}}}{\tau_{-}}\right),
+                    \text {if } t_{\mathrm{pre}}-t_{\mathrm{post}}>0} \\
+                    {\lambda \cdot \exp \left(-\frac{t_{\mathrm{post}}-t_{\mathrm{pre}}}{\tau_{+}}\right),
+                    \text {if } t_{\mathrm{pre}}-t_{\mathrm{post}}<0}
+                  \end{array}\right.
 \end{equation}
 
 where \(\tau_{+}\) and \(\tau_{-}\) are time constants. \(\tau_{+} = 16.8ms\)
@@ -485,10 +505,10 @@ There are several libraries like BindsNET~\cite{10.3389/fninf.2018.00089} that
 simulate SNNs on Von Neumann computers implementing these rules. Recent attempts
 have been made to combine Reinforcement Learning and STDP:\@ both in solving RL
 problems~\cite{10.3389/fninf.2018.00089}, and using the reinforcement learning
-framework to train
-SNN~\cite{10.3389/fnbot.2019.00018,10.3389/fnins.2018.00435}. However, SNNs
-trained using the STDP learning rule have yet to achieve comparable performance
-compared to ANNs on relatively simple datasets like MNIST~\cite{TAVANAEI201947}.
+framework to train SNN~\cite{10.3389/fnbot.2019.00018,10.3389/fnins.2018.00435}.
+However, SNNs trained using the STDP learning rule have yet to achieve
+comparable performance compared to ANNs on relatively simple datasets like
+MNIST~\cite{TAVANAEI201947}.
 
 \subsection{Gradient-based methods}
 
