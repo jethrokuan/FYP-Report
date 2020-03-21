@@ -2,14 +2,14 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{charter}
+\usepackage{subcaption}
 \usepackage{fullpage}
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage[dvipsnames,table]{xcolor}
+\usepackage{forest}
 \usepackage[backend=biber,citestyle=ieee,sorting=none]{biblatex}
-\usepackage{color}
 \input{macros.tex}
 
 \addbibresource{socreport.bib}
@@ -390,9 +390,106 @@ following:
 
 \section{Spiking Neuron Models\label{sec:spiking-neuron-model}}
 
+Spiking neuron models are mathematical models that describe the underlying
+neuron dynamics: how electrical signals propagate from inputs to outputs, and
+the changes in the neurons internal state, such as the membrane potential.
 
-In spiking neural networks, neurons exchange information via spikes, and the
-information received depends on:
+A biological neuron has a few main components:
+
+\begin{description}
+  \item[{Dendrites}] Neurons receive input signals at the dendrites, which
+    transmit incoming electrical signals to the cell body.
+  \item[{Cell Body}] The cell body is responsible for ``processing'' the input
+    from the dendrites. The typical behaviour is to accumulate the electrical
+    input from the dendrites. Once the cell's membrane potential crosses a
+    certain threshold, it spikes, and sends an output signal through the axon.
+  \item[{Axons}] The axon receives electrical signals from the cell body.
+    Electrical signals propagate down to axon terminals, which control the
+    release of neurotransmitters.
+\end{description}
+
+The perceptron was biologically-inspired, and has an analogous representation
+that may be helpful for understanding, which we present
+in~\autoref{fig:bio_neuron}.
+
+\begin{figure}[ht]
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/biological_neuron_perceptron.png}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \begin{tabular}{|l|l|}
+      \hline
+      \hline
+      \textbf{Biological Neuron} & \textbf{Perceptron} \\
+      \hline
+      Dendrites & Inputs \\
+      Cell Body & Processing input: $f(\sum \textbf{w} \cdot \textbf{i})$ \\
+      Axon (Terminals) & Output \\
+      \hline
+      \hline
+    \end{tabular}
+  \end{subfigure}
+  \caption{The biological neuron~\cite{tds_artif_biolog_neural_networ}, in contrast with a perceptron.}
+  \label{fig:bio_neuron}
+\end{figure}
+
+In this section, we present a taxonomy of neuron models. These neuron models
+vary in computational and implementation complexity. We discuss some of them in
+brief, and conduct a thorough review of the Spike Response Model (SRM). For a
+more in-depth treatment of spiking neuron models, we refer you to~\cite{izhikevich2004model}.
+
+\begin{figure}[t]
+    \centering
+    \begin{forest}
+      for tree={align=center}
+      [\textbf{Neuron Models}
+      [\textbf{McCulloch-Pitts}]
+       [\textbf{Spiking Neurons}
+       [{\textbf{Biologically-plausible} \\
+         - \small{Hodgkin-Huxley~\cite{hodgkin1952quantitative}} \\
+         - \small{Morris-Lecar\cite{morris81_voltag_oscil_barnac_giant_muscl_fiber}}}]
+       [\textbf{Biologically-inspired}
+       [\textbf{Simplifications} \\
+       - \small{FitzHugh-Nagumo~\cite{fitzhugh1955mathematical}} \\
+       - \small{Izhikevich~\cite{izhikevich2003simple}}]
+        [\textbf{Integrate-and-Fire}]]]
+      ]
+    \end{forest}
+    \caption{A taxonomy of spiking neuron models.}
+    \label{fig:snm_taxonomy}
+  \end{figure}
+
+\subsection{McCulloch-Pitts}
+Activation functions such as the sigmoid function, and hyperbolic tangent
+function can be implemented at the hardware level in the McCulloch-Pitts neuron
+model. However, these models use digital input and output, which means they have
+a higher footprint than spiking neuron models which perform analog computation.
+
+\subsection{Biologically-plausible Models}
+The Hodgkin-Huxley~\cite{hodgkin1952quantitative} model is a mathematical model
+that uses four-dimensional non-linear differential equations to model the neuron
+dynamics, using the transfer of ions as the medium. This model is popular among
+the neuroscientific community, for accurately modelling the biological process.
+The Morris-Lecar~\cite{morris81_voltag_oscil_barnac_giant_muscl_fiber} model is
+a simplification of the Hodgkin-Huxley model, which is more easily implementable
+in hardware.
+
+\subsection{Biologically-inspired Models}
+Some biologically-inspired models often sacrifice biological-plausibility for
+ease of implementation. These models have a smaller number of parameters,
+resulting in models that are not only easier to train, but also have a smaller
+energy footprint. These models include the
+FitzHugh-Nagumo~\cite{fitzhugh1955mathematical}, and the
+Izhikevich~\cite{izhikevich2003simple} model.
+
+A particularly notable family of biologically-inspired models in the
+integrate-and-fire family. These models maintain as state, the membrane
+potential of the neuron, accumulating charge from input neurons. The leaky
+integrate-and-fire adds and additional ``leak'' term, which causes the neuron's
+membrane potential to decay over time to the resting potential. The spike
+response model (SRM), is a generalization of the leaky integrate-and-fire model.
 
 \begin{description}
 \item[{Firing frequencies}] The relative timing of pre and post-synaptic spikes,
@@ -606,8 +703,8 @@ In this section, we give an overview of related work on visual-tactile perceptio
 
 \chapter{Reinforcement learning in Spiking Neural Networks\label{cha:snnrl}}
 
-% TODO Introduction
-% TODO RL survey
+\fixme{Introduction}
+\fixme{RL survey}
 
 \subsection{The Cartpole Environment}
 

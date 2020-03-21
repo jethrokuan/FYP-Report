@@ -86,7 +86,7 @@
 \newenvironment{keywords}[1]
                {\parindent 0em
 			   \parsep \z@
-			   \vspace{1cm}Keywords: 
+			   \vspace{1cm}Keywords:
 			   \parindent 1.5em%
 
 			   #1}
@@ -94,12 +94,12 @@
 \newenvironment{implement}[1]
                {\parindent 0em
 			   \parsep \z@
-			   \vspace{1cm}Implementation Software and Hardware: 
+			   \vspace{1cm}Implementation Software and Hardware:
 			   \parindent 1.5em%
 
 			   #1}
                {\par}
-                                                                                                              
+
   \newenvironment{acknowledgement}{%
       \titlepage
       \doublespacing
@@ -127,6 +127,287 @@
 }
 \newcommand{\changenormalspacing}[1]{\renewcommand{\normalspacing}{#1}}
 
+% from apa.sty.
+
+\newif\ifcitehead
+\newif\ifcitetail
+\newif\iffirstcite
+\newif\ifciteinparen
+
+\def\@setfirstcite#1{%
+  \@ifundefined{c@#1}{%
+    \expandafter\gdef\csname c@#1\endcsname{}%
+    \firstcitetrue%
+  }{%
+    \firstcitefalse%
+    }%
+  }
+
+\def\@internalcite{%
+  \@ifnextchar[{\citeheadtrue\@citegettail}{\citeheadfalse\@citegettail[]}}%
+  \def\@citegettail[#1]{%
+    \setbox\@tempboxa\hbox{#1}\ifdim \wd\@tempboxa >0pt\else\citeheadfalse\fi%
+    \@ifnextchar[{\citetailtrue\@citex[#1]}{\citetailfalse\@citex[#1][]}}
+
+\def\@citex[#1][#2]#3{%
+  \if@filesw\immediate\write\@auxout{\string\citation{#3}}\fi%
+  \def\@citeand{\ and\ }\def\@citea{}\def\@citepos{\def\@citeand{~\&\ }'\ (}%
+  \def\@citeposs{\def\@citeand{~\&\ }'s\ (}%
+  \def\@citeout{\def\@citeand{~\&\ }\ (}\def\@lastcite{}%
+  \@cite{\@for\@citeb:=#3\do{%
+    \@ifundefined{b@\@citeb}{{\@citeb}%
+    \@warning{Citation `\@citeb' on page \thepage \space undefined}}%
+    {\csname b@\@citeb\endcsname}}}{#1}{#2}}
+
+\def\@citeand{\ifciteinparen~\&\ \else\ and\ \fi}
+
+\def\@bocite#1#2{\ifcitehead#2\ \fi#1}
+\def\@bccite#1#2{\def\@citeand{~\&\ }(\@bocite{#1}{#2}}
+\def\@eocite#1{\ifcitetail, #1\fi}
+\def\@eccite#1{\@eocite{#1})}
+
+\def\@cite#1#2#3{\@bcite{#1}{#2}\@ecite{#3}}
+
+\def\@ifempty#1#2#3{\def\arg{#1}\ifx\arg\empty#2\else#3\fi}
+
+% This stuff allows short (name-less) citations, when used in
+% conjunction with a bibliography style that creates labels like
+%       \citename{<first name>}{<middle names>}{<last name>}{<label>}{<year>}{<key>}
+
+\def\cite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {\@setfirstcite{##6}\iffirstcite##1,\ ##2,~\&\ ##3\else##1\ et~al.\fi}},\ ##5\fi}%
+  \def\@bcite{\@bccite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\outcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {\@setfirstcite{##6}\iffirstcite##1,\ ##2,\@citeand##3\else##1\ et~al.\fi}}%
+      \@citeout\def\@citeout{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\nopcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {\@setfirstcite{##6}\iffirstcite##1,\ ##2,~\&\ ##3\else##1\ et~al.\fi}}%
+      ,\ ##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eocite}\@internalcite}
+
+\def\poscite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {\@setfirstcite{##6}\iffirstcite##1,\ ##2,\@citeand##3\else##1\ et~al.\fi}}%
+      \@citepos\def\@citepos{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\posscite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {\@setfirstcite{##6}\iffirstcite##1,\ ##2,\@citeand##3\else##1\ et~al.\fi}}%
+      \@citeposs\def\@citeposs{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\yrcite{%
+  \def\citename##1##2##3##4##5##6{\@citea\def\@citea{,\ }##5}%
+  \def\@bcite{\@bccite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\yrnopcite{%
+  \def\citename##1##2##3##4##5##6{\@citea\def\@citea{,\ }##5}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eocite}\@internalcite}
+
+%
+% always list all authors
+%
+\def\fullcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {##1,\ ##2,~\&\ ##3}}%
+      ,\ ##5\fi}%
+  \def\@bcite{\@bccite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\fulloutcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1,\ ##2,\@citeand##3}}%
+      \@citeout\def\@citeout{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\fullnopcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {##1,\ ##2,~\&\ ##3}}%
+      ,\ ##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eocite}\@internalcite}
+
+\def\fullposcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1,\ ##2,\@citeand##3}}%
+      \@citepos\def\@citepos{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\fullposscite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1,\ ##2,\@citeand##3}}%
+      \@citeposs\def\@citeposs{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+%
+% always use et al.
+%
+\def\abbrevcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {##1\ et~al.}}%
+      ,\ ##5\fi}%
+  \def\@bcite{\@bccite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\abbrevoutcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1\ et~al.}}%
+      \@citeout\def\@citeout{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\abbrevnopcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1~\&\ ##3}%
+        {##1\ et~al.}}%
+      ,\ ##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eocite}\@internalcite}
+
+\def\abbrevposcite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1\ et~al.}}%
+      \@citepos\def\@citepos{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+\def\abbrevposscite{%
+  \def\citename##1##2##3##4##5##6{%
+    \def\@thiscite{##1##2##3}%
+    \ifx\@thiscite\@lastcite,\ ##5%
+    \else%
+      \@citea\def\@citea{;\ }\def\@lastcite{##1##2##3}%
+      \@ifempty{##3}{##1}%
+      {\@ifempty{##2}{##1\@citeand##3}%
+        {##1\ et~al.}}%
+      \@citeposs\def\@citeposs{,\ }##5\fi}%
+  \def\@bcite{\@bocite}\def\@ecite{\@eccite}\@internalcite}
+
+
+% some people perfer the name \incite to \outcite
+\let\incite\outcite
+\let\fullincite\fulloutcite
+\let\abbrevincite\abbrevoutcite
+
+
+% This makes the bibliography entries have no labels, and be
+% outdented (first line is flush with left margin)
+
+\def\@biblabel#1{}
+\def\@lbibitem[#1]#2{\item[\@biblabel{#1}]\hskip -\leftmargin\if@filesw
+      {\def\protect##1{\string ##1\space}\immediate
+        \write\@auxout{\string\bibcite{#2}{#1}}}\fi\ignorespaces}
+
+%
+% just changed to have \itemsep 0em
+%
+%\def\thebibliography#1{\section{References}\list
+% {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+% \advance\leftmargin\labelsep\itemsep 0em
+% \usecounter{enumi}}
+% \def\newblock{\hskip .11em plus .33em minus .07em}
+% \sloppy\clubpenalty4000\widowpenalty4000
+% \sfcode`\.=1000\relax}
+%\let\endthebibliography=\endlist
+%
+% An untitled bibliography environment
+%
+\def\theuntitledbibliography#1{\list
+  {\relax}{\labelsep 0em\itemindent 1.5em\leftmargin 3.5em}
+    \def\newblock{\hskip .11em plus .33em minus .07em}
+    \sloppy\clubpenalty4000\widowpenalty4000
+    \sfcode`\.=1000\relax}
+%
+% for small headers inside theuntitledbibliography
+%
+\newcommand{\bibhead}[1]{\item \hspace*{-5em}{\normalsize\bf #1}}
+
+% END
+%
 \ExecuteOptions{a4paper,11pt,titlepage,oneside,onecolumn,final,fullpage,openany}
 \ProcessOptions
 \input{size1\@ptsize.clo}
@@ -206,7 +487,7 @@
 \Large \textbf{\@title} \vspace{2 cm} \large \\
 By \\ \vspace{.5cm}
 \@author \\
-\vspace{2 cm} 
+\vspace{2 cm}
 Department of Computer Science \\  \vspace{.5cm}
 School of Computing \\ \vspace{.5cm}
 National University of Singapore \\ \vspace{1cm}
@@ -224,14 +505,14 @@ National University of Singapore \\ \vspace{1cm}
   \if@fyp
     B.Comp. Dissertation \\
    \else
-    
+
   \fi
 \fi
 \vspace{1 cm}
 \Large \textbf{\@title} \vspace{2 cm} \large \\
 By \\ \vspace{.5cm}
 \@author \\
-\vspace{2 cm} 
+\vspace{2 cm}
 Department of Computer Science \\  \vspace{.5cm}
 School of Computing \\ \vspace{.5cm}
 National University of Singapore \\ \vspace{1cm}
@@ -244,7 +525,7 @@ Project No: \@pjnumber
 
 Advisor: \@advisor
 
-Deliverables: 
+Deliverables:
   \begin{list}{}{%
 	\setlength{\leftmargin}{4em}
 	\setlength{\topsep}{0pt}
