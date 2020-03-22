@@ -9,7 +9,11 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{forest}
-\usepackage[backend=biber,citestyle=ieee,sorting=none]{biblatex}
+\usepackage[backend=biber,
+style=ieee,
+doi=false,
+url=true,
+sorting=none]{biblatex}
 \input{macros.tex}
 
 \addbibresource{socreport.bib}
@@ -46,8 +50,8 @@
   \end{implement}
 \end{abstract}
 
-% \listoffigures
-% \listoftables
+\listoffigures
+\listoftables
 \tableofcontents
 
 \chapter{Introduction\label{cha:intro}}
@@ -163,7 +167,8 @@ reviews the differences between deep neural networks, and spiking neural
 networks (\ref{sec:gener-neur-netw}). It introduces the basics of spiking neural
 networks (\ref{sec:spiking-neuron-model}), and its benefits
 (\ref{sec:motiv-spik-neur}). Finally, we discuss how to train spiking neural
-networks (\ref{sec:train-spik-neur}), and give some future directions.
+networks (\ref{sec:train-spik-neur}), and give a short conclusion with future
+directions.
 
 \section{The Generations of Neural Networks\label{sec:gener-neur-netw}}
 
@@ -343,33 +348,9 @@ neurons. The spikes are to a first-order approximation of uniform amplitude,
 unlike the continuous-valued activations of ANNs.
 
 Second, backpropagation as a learning procedure also presents incompatibilities
-with the biological brain~\cite{TAVANAEI201947}. Consider the chain rule in
-backpropagation:
-
-\begin{equation}
-  \label{chainrule}
-  \delta_{j}^{\mu}=g^{\prime}\left(a_{j}^{\mu}\right) \sum_{k} w_{k j} \delta_{k}^{\mu}
-\end{equation}
-
-\(\delta_{j}^{\mu}\) and \(\delta_{k}^{\mu}\) denote the partial derivatives of
-the cost function for input pattern \(\mu\) with respect to the net input to
-some arbitrary unit \(j\) or \(k\). Unit \(j\) projects feed-forward connections
-to the set of units indexed by \(k\). \(g(\cdot)\) is the activation function
-applied to the net input of unit \(j\), denoted \(a_j^{\mu}\), \(w_{kj}\) are
-the feedforward weights projecting from unit \(j\) to the set of units indexed
-by \(k\).
-
-The chain rule formulation presents two problems. First, the gradients
-\(g'(\cdot)\) requires derivatives, but \(g(\cdot)\) in spiking neurons is
-represented by sum of Dirac delta functions, for which derivatives do not
-exist. Second, the expression \(\sum_{k} w_{k j} \delta_{k}^{\mu}\) uses
-feedforward weights in a feedback fashion. This mean that backpropagation is
-only possible in the presence of symmetric feedback weights, but these do not
-exist in the brain. In addition, during backpropagation the error assignment for
-each neuron is computed using non-local information.
-
-This result motivates the search for alternative learning mechanisms for spiking
-neural networks. We discuss this in detail in~\autoref{sec:train-spik-neur}.
+with the biological brain~\cite{TAVANAEI201947}, explained in further detail
+in~\autoref{sec:diff-train}. This result motivates the search for alternative
+learning mechanisms for spiking neural networks.
 
 \subsection{Summary}
 In conclusion, the main motivations for spiking neural networks are the
@@ -388,13 +369,14 @@ following:
   answer open questions in neuroscience
 \end{itemize}
 
-\section{Spiking Neuron Models\label{sec:spiking-neuron-model}}
+\section{Neuron Models\label{sec:spiking-neuron-model}}
 
-Spiking neuron models are mathematical models that describe the underlying
-neuron dynamics: how electrical signals propagate from inputs to outputs, and
-the changes in the neurons internal state, such as the membrane potential.
+Neuron models are mathematical models that describe the underlying neuron
+dynamics: how electrical signals propagate from inputs to outputs, and the
+changes in the neurons internal state, such as the membrane potential.
 
-A biological neuron has a few main components:
+Many of these neuron models are modeled after the biological neuron, which has a
+few main components:
 
 \begin{description}
   \item[{Dendrites}] Neurons receive input signals at the dendrites, which
@@ -443,7 +425,7 @@ more in-depth treatment of spiking neuron models, we refer you to~\cite{izhikevi
 \begin{figure}[t]
     \centering
     \begin{forest}
-      for tree={align=center}
+      for tree={align=left}
       [\textbf{Neuron Models}
       [\textbf{McCulloch-Pitts}]
        [\textbf{Spiking Neurons}
@@ -454,10 +436,14 @@ more in-depth treatment of spiking neuron models, we refer you to~\cite{izhikevi
        [\textbf{Simplifications} \\
        - \small{FitzHugh-Nagumo~\cite{fitzhugh1955mathematical}} \\
        - \small{Izhikevich~\cite{izhikevich2003simple}}]
-        [\textbf{Integrate-and-Fire}]]]
+       [\textbf{Integrate-and-Fire (IF)} \\
+       - \small{IF~\cite{abbott99_lapic_introd_integ_and_fire}} \\
+       - \small{(Fractional) Leaky IF~\cite{teka14_neuron_spike_timin_adapt_descr}} \\
+       - \small{Spike-response~\cite{gerstner2001framework}}
+       ]]]
       ]
     \end{forest}
-    \caption{A taxonomy of spiking neuron models.}
+    \caption{A taxonomy of popular spiking neuron models.}
     \label{fig:snm_taxonomy}
   \end{figure}
 
@@ -487,60 +473,95 @@ Izhikevich~\cite{izhikevich2003simple} model.
 A particularly notable family of biologically-inspired models in the
 integrate-and-fire family. These models maintain as state, the membrane
 potential of the neuron, accumulating charge from input neurons. The leaky
-integrate-and-fire adds and additional ``leak'' term, which causes the neuron's
-membrane potential to decay over time to the resting potential. The spike
-response model (SRM), is a generalization of the leaky integrate-and-fire model.
+integrate-and-fire model introduces an additional ``leak'' term, which controls
+the decay of the neuron's membrane potential over time.
 
-\begin{description}
-\item[{Firing frequencies}] The relative timing of pre and post-synaptic spikes,
-and neuronal firing patterns
-\item[{Identity of synapses used}] Which neurons are connected, whether their
-synapses are inhibitory or excitatory, and synaptic strength
-\end{description}
+\section{The Spike-response Model}
 
-Each neuron has a corresponding model that encapsulates its state: the current
-membrane potential. As with the mammalian brain, incoming spikes increase the
-value of membrane potential. The membrane potential eventually decays to resting
-potential in the absence of spikes. These dynamics are often captured via
-first-order differential equations. Here we define the Spike Response Model
-(SRM), a simple but widely-used model describing the momentary value of a neuron
-\(i\).
+The spike-response model~\cite{gerstner2001framework} is a generalization of the
+leaky integrate-and-fire model. We review this model because this neuron model
+is used in SLAYER~\cite{NIPS2018_7415}, the framework we use in our experiments.
 
-We define for presynaptic neuron \(j\),
-\(\epsilon_{ij}(t) = u_{i}(t) - u_{\text{rest}}\). For a few input spikes, the
-membrane potential responds roughly linearly to the input spikes:
+Rather than modelling the neuronal dynamics using differential equations, the
+SRM model uses convolutional filters, a property that makes the simulation and
+training of these spiking models easy. In contrast to the leaky IF model, the
+refractory behaviour of the neuron is also captured, which has allowed it to
+better fit spiking data~\cite{jolivet04_gener_integ_and_fire_model}.
 
-\begin{equation} u_i{t} = \sum_{j}\sum_{f} \epsilon_{ij}(t - t_j^{(f)}) + u_{\text{rest}}
+In this model, a neuron is characterized by a single variable $\mu$, the
+membrane potential of the cell. Suppose that the neuron has fired its last spike
+at time $\hat{t}$. Then, in the most general formulation, at each time
+$t > \hat{t}$, the state of the cell is expressed as an integral over the
+previous timesteps:
+
+\begin{equation}
+  \label{eq:srm}
+  \mu(t) = \eta(t - \hat{t}) + \int_{-\infty}^{+\infty}\kappa(t - \hat{t}, s)I(t - s) ds
 \end{equation}
 
-SRM describes the membrane potential of neuron \(i\) as:
+where $\eta$ describes the form of the action potential, $\kappa$ is the linear
+response to an input pulse, and $I(t)$ is the stimulating current. In most
+spiking neural network architectures, the imposed current $I(t)$ is instead
+described as a weighted sum of presynaptic inputs, and the equation can be
+rewritten as:
 
-\begin{equation} u_i{t} = \eta (t - \hat{t_i}) + \sum_{j}\sum_{f} \epsilon_{ij}(t - t_j^{(f)}) + u_{\text{rest}}
+\begin{equation}
+  \label{eq:srm}
+  \mu(t) = \eta(t - \hat{t}) + \sum_{j} \sum_{f} w_{j}\epsilon(t - \hat{t}, t-t_{j}^{f})
 \end{equation}
 
-where \(\hat{t_i}\) is the last firing time of neuron \(i\).
 
-We refer to moment when a given neuron emits an action potential as the firing
-time of that neuron. We denote the firing times of neuron \(i\) by \(t_i^{(f)}\)
-where \(f = 1,2,\dots\) is the label of the spike.  Then we formally denote the
-spike train of a neuron \(i\) as the sequence of firing times:
+where $\epsilon$, the spike response kernel, is obtained by convolving the
+kernel $\kappa$ with the time course of the presynaptic input.
 
-\begin{equation} S_i(t) = \sum_{f} \delta\left( t - t_i^{(f)} \right)
+A common form for the refractory kernel $\eta$ is:
+
+\begin{equation}
+  \label{eq:srm_eta}
+  \eta(t) = - \eta_{0} \textrm{exp} \left(- \frac{t}{\tau}\right) \mathcal{H}(t)
 \end{equation}
 
-where \(\delta(x)\) is the Dirac-delta function with \(\delta(x) = 0\) for
-\(x \ne 0\) and \(\int_{-\infty}^{\infty} \delta(x)dx = 1\). Spikes are thus
-reduced to points in time.
+where $\eta_{0}$ is the amplitude of the relative refractorines, $\tau$ is a
+decay time constant, and $\mathcal{H}$ is the Heaviside step function.
 
+SLAYER uses the SRM model, and formulates it this way. Suppose that the neuron
+receives an input spike train,
+$s_i(t) = \sum_{f} \delta\left( t - t_i^{(f)} \right)$. The spike train is
+represented as a sum of Dirac delta functions with \(\delta(x) = 0\) for
+\(x \ne 0\) and \(\int_{-\infty}^{\infty} \delta(x)dx = 1\). In the spike
+response model, incoming spikes are converted into a \emph{spike response
+  signal}, $a_{i}(t)$, by convolving $s_{i}(t)$ with a spike response kernel
+$\epsilon(\cdot)$: $a_{i}(t) = (\epsilon \ast s_{i})(t)$. The refractory
+response of the neuron can also be represented with a refractory kernel
+$\eta(\cdot)$, giving the formula for the refractory response:
+$(\eta \ast s)(t)$ for the neuron's spike train $s(t)$.
 
-\subsection{Neuromorphic Hardware\label{neuromorphic}}
+Each spike response signal is scaled by a synaptic weight $w_{i}$, to generate a
+post synaptic potential (PSP). The neuron's state is then given by the equation:
 
-In a traditional Von Neumann architecture, the logic core operates on data
-fetched sequentially from memory. In contrast, in neuromorphic chips both
-computation and memory are distributed across computational units that are
-connected via synapses. The neuronal architecture and parameters hence play a
-key role in information representation and define the computations that are
-performed.
+\begin{equation}
+  \label{eq:slayer_srm}
+  \mu(t) = (\eta \ast s)(t) + \sum_{i} w_{i}(\epsilon \ast s_{i})(t) = (\eta \ast s)(t) + \boldsymbol{w}^{T} \boldsymbol{a}(t)
+\end{equation}
+
+The neuron produces an output spike when membrane threshold $\theta$ is
+reached. The spike function $f_{s}(\cdot)$ is defined as:
+
+\begin{equation}
+  \label{eq:slayer_spike_fn}
+  f_{s}(\mu) : \mu \rightarrow s, s(t) := s(t) + \delta(t - t^{f+1}) \text{
+    where } t^{f+1} = \textrm{min}\left\{t: \mu(t) = \theta, t > t^{f}\right\}
+\end{equation}
+
+\section{Neuromorphic Hardware\label{neuromorphic}}
+
+To obtain the full benefits of spiking neural networks, they need to be deployed
+on specialized neuromorphic hardware. In a traditional Von Neumann architecture,
+the logic core operates on data fetched sequentially from memory. In
+neuromorphic chips, both computation and memory are instead distributed across
+computational units that are connected via synapses. Henc, the neuronal
+architecture and parameters play a key role in information representation and
+define the computations that are performed.
 
 It has also been observed that spike-trains in the mammalian brain are often
 sparse in time, suggesting that timing and relative timings of spikes encode
@@ -550,35 +571,117 @@ offering the same asynchronous, event-based parallelism paradigm that the brain
 uses, are able to perform certain workloads with much less power than Von
 Neumann chips.
 
-These integrated circuits are typically programmed with spiking neural
-networks. Examples of such chips include IBM's TrueNorth~\cite{Merolla668} and
-Intel's Loihi~\cite{davies2018loihi}. Because spiking neural networks have not
-yet been successfully trained on many tasks, neuromorphic chips has seen little
-practical use. These chips have only recently been successfully used in robotic
-navigation~\cite{SnnSlam}, and solving graph problems by manual construction of
-the network graph~\cite{Severa2016SpikingNA}.
+Examples of such chips include IBM's TrueNorth~\cite{Merolla668} and Intel's
+Loihi~\cite{davies2018loihi}. Loihi features 128 neuromorphic cores, each of
+which implementing 1024 spiking neural units. The mesh protocol further supports
+scaling up to 4096 on-chip cores. The large number of computational units and
+their interconnectivity is a common feature in neuromorphic chips.
+
+~\citeauthor{blouw18_bench_keywor_spott_effic_neurom_hardw} quantified the
+trade-offs between network size, inference speed, and energy cost between
+different hardware. The comparison showed that the Intel Loihi was 100 times
+more efficient than a GPU, with inference speeds also being three times
+faster~\cite{blouw18_bench_keywor_spott_effic_neurom_hardw}.
+
+Because spiking neural networks have not yet been successfully trained on many
+tasks, neuromorphic chips has seen little practical use. These chips have only
+recently been successfully used in robotic navigation~\cite{SnnSlam}, and
+solving graph problems by manual construction of the network
+graph~\cite{Severa2016SpikingNA}.
 
 \section{Training Spiking Neural Networks\label{sec:train-spik-neur}}
 
-As explained in \autoref{neuromorphic}, it is desirable to train spiking neural
-networks to perform arbitrary tasks, utilizing power-efficient neuromorphic
-chips that break the Von Neumann bottleneck. We classify the training strategies
-by their usage of gradients, and discuss certain optimization techniques.
+It is desirable to train spiking neural networks to perform arbitrary tasks,
+utilizing power-efficient neuromorphic chips that break the Von Neumann
+bottleneck. However, spiking neural networks have yet to achieve superior
+performance relative to their ANN counterparts. In this section, we first
+discuss the difficulties in training SNNs. Then, we provide a taxonomy of
+training strategies.
 
-\subsection{Non-gradient based methods}
+\subsubsection{Difficulties in Training\label{sec:diff-train}}
 
-Spiking neurons communicate via spikes, hence, unlike ANNs, gradients are
-non-existent. In addition, backpropagation is not biologically plausible (see
-\autoref{bioplausible}). This motivates the use of plasticity-based methods and
-evolutionary strategies for training SNNs.
+Because backpropagation has been effective in training artificial neural
+networks, the natural approach is to attempt to apply it to spiking neural
+networks. However, consider the chain rule in backpropagation:
 
-One category of learning rules used in SNNs are local learning rules.  These
-rules include Hebbian learning (neurons that fire together wire together), and
-its extension: the spike-timing-dependent-plasticity rule (STDP). Inspired by
-experiments in neuroscience, central to these learning rules is the theme that
-neuron spike ordering and their relative timings encode information. STDP
-adjusts the strength of connections between neurons using the relative timing of
-a neuron's output and its input potentials (hence, spike-timing dependent).
+\begin{equation}
+  \label{chainrule}
+  \delta_{j}^{\mu}=g^{\prime}\left(a_{j}^{\mu}\right) \sum_{k} w_{k j} \delta_{k}^{\mu}
+\end{equation}
+
+\(\delta_{j}^{\mu}\) and \(\delta_{k}^{\mu}\) denote the partial derivatives of
+the cost function for input pattern \(\mu\) with respect to the net input to
+some arbitrary unit \(j\) or \(k\). Unit \(j\) projects feed-forward connections
+to the set of units indexed by \(k\). \(g(\cdot)\) is the activation function
+applied to the net input of unit \(j\), denoted \(a_j^{\mu}\), \(w_{kj}\) are
+the feedforward weights projecting from unit \(j\) to the set of units indexed
+by \(k\).
+
+The chain rule formulation presents two key challenges. First, the gradients
+\(g'(\cdot)\) requires derivatives, but \(g(\cdot)\) in spiking neurons is
+represented by sum of Dirac delta functions, for which derivatives do not exist.
+The non-differentiability.
+
+Second, the expression \(\sum_{k} w_{k j} \delta_{k}^{\mu}\) uses feedforward
+weights in a feedback fashion. This mean that backpropagation is only possible
+in the presence of symmetric feedback weights, but these do not exist in the
+brain. This is also known as the ``weight-transport''
+problem~\cite{grossberg1987competitive}. A more practical problem the usage of
+non-local information during error assignment. This makes the backpropagation
+incompatible with many neuromorphic hardware implementations, such as the Loihi:
+the learning rules of the Loihi are constrained to be of a sum-of-products form.
+
+In the following sections, we present training methods that work around these
+difficulties, according to the following classification:
+
+\begin{description}
+  \item[Usage of Gradients] Recent advancements in the field have opened up the possibilities of using gradient-based methods for training spiking neural networks. We classify the learning algorithms based on whether they utilize gradient information for learning.
+  \item[Offline/Online] Since many neuromorphic hardware implementations impose strict restrictions on the neuron update rules, many learning algorithms use simulations on Von Neumann hardware to learn the SNN weights before deploying them on hardware. We classify the learning algorithms based on whether online learning on neuromorphic chips is possible.
+\end{description}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    & \textbf{Non-gradient based} & \textbf{Gradient-based} \\
+    \hline
+    \textbf{Offline-only} & \begin{tabular}{@{}l@{}}
+                        \small
+                        Evolutionary Algorithms
+                      \end{tabular} & \begin{tabular}{@{}l@{}}
+                                        \small
+                                        ANN $\rightarrow$ SNN \\
+                                        Smooth models \\
+                                        Surrogate Gradients
+                                      \end{tabular}\\
+    \hline
+    \textbf{Online} & \begin{tabular}{@{}l@{}}
+                        \small
+                        Local Learning Rules
+                      \end{tabular} & \begin{tabular}{@{}l@{}}
+                                        \small
+                                        Surrogate Gradients + Random BP
+                                      \end{tabular}\\
+    \hline
+  \end{tabular}
+  \caption{A taxonomy of learning algorithms for spiking neuron models.}
+  \label{tab:snm_train_taxonomy}
+\end{table}
+
+\subsubsection{Local Learning Rules}
+
+Local learning rules are simple fixed rules, that tells a neuron how to update
+its weights for each training example. These rules often only use information
+from neighbouring neurons, and can be easily implemented on neuromorphic
+hardware. The earliest of such rules is Hebbian
+learning~\cite{hebb1949organization}, which can be summarized as ``neurons which
+fire together wire together''.
+
+A recent, and much more popular learning rule is the spike-timing-dependent
+plasticity rule (STDP). Central to these learning rules is the theme that neuron
+spike ordering and their relative timings encode information. STDP adjusts the
+strength of connections between neurons using the relative timing of a neuron's
+output and its input potentials.
 
 In machine learning terminology, the weights of the synapses are adjusted
 according to fixed rules for each training example. Each synapse is given a
@@ -598,39 +701,111 @@ of post-synaptic spikes~\cite{sboev18_spikin_neural_networ_reinf_learn}:
 where \(\tau_{+}\) and \(\tau_{-}\) are time constants. \(\tau_{+} = 16.8ms\)
 and \(\tau_{-} = 33.7ms\) are reasonable approximations obtained experimentally.
 
-There are several libraries like BindsNET~\cite{10.3389/fninf.2018.00089} that
-simulate SNNs on Von Neumann computers implementing these rules. Recent attempts
-have been made to combine Reinforcement Learning and STDP:\@ both in solving RL
-problems~\cite{10.3389/fninf.2018.00089}, and using the reinforcement learning
-framework to train SNN~\cite{10.3389/fnbot.2019.00018,10.3389/fnins.2018.00435}.
-However, SNNs trained using the STDP learning rule have yet to achieve
-comparable performance compared to ANNs on relatively simple datasets like
-MNIST~\cite{TAVANAEI201947}.
+Because the rules are local, these local learning rules fall within the
+unsupervised learning paradigm of machine learning. However, more recently,
+variants of STDP such as reward-modulated
+STDP~\cite{legenstein08_learn_theor_rewar_modul_spike} have been proposed to
+allow for neurons to learn to update synaptic weights to maximize the global
+reward of a system.
+
+Libraries such as BindsNET~\cite{10.3389/fninf.2018.00089} that simulate SNNs on
+Von Neumann computers implementing these rules. Recent attempts have been made
+to combine Reinforcement Learning and STDP:\@ both in solving reinforcement
+learning problems~\cite{10.3389/fninf.2018.00089}, and using the reinforcement
+learning framework to train
+SNN~\cite{10.3389/fnbot.2019.00018,10.3389/fnins.2018.00435}. However, SNNs
+trained using the STDP learning rule have yet to achieve comparable performance
+compared to ANNs on relatively simple datasets like MNIST~\cite{TAVANAEI201947}.
+
+\subsubsection{Evolutionary Algorithms}
+
+In the absence of gradients, neuroevolution is a popular option. Evolutionary
+algorithms were once thought to be ineffective for training neural networks,
+which have large parameter spaces. However, advancements in the algorithmic
+front have made them feasible for solving challenging reinforcement learning
+problems~\cite{such17_deep_neuroev}.
+
+One such evolutionary algorithm that can be easily applied to spiking neural
+networks is differential evolution (DE). In differential evolution, a population
+of candidate solutions are maintained. At each timestep, the parameters of these
+agents are tweaked, and the candidates is evaluated. In some variants of DE, a
+reproduction step involving crossing-over of weights between candidate solutions
+is also introduced. The agent that has the best performance is returned after
+some stopping criterion (e.g. time-step) is reached. Evolutionary algorithms
+tend to be computationally expensive, but parallelizable. For example, in DE the
+evaluation of candidates can be done in parallel. Hence, it requires offline
+training. DE has been successfully applied to achieve comparable results with
+ANNs on simple datasets like IRIS~\cite{pavlidisil_spikin}.
 
 \subsection{Gradient-based methods}
 
-Performance is important for practical applications, and gradient-based training
-methods such as backpropagation has shown competitive performance. It is thus
-desirable to train spiking neural networks with these gradient-based methods.
+The class of gradient-based methods use several techniques to overcome the
+difficulties in training presented in~\autoref{sec:diff-train}. Gradient-based
+methods seek to optimize a loss function. When the target label is a spike
+train, a spike train distance metric such as the van-Rossum distance is commonly
+used. Alternative distance metrics are well covered in
+~\cite{victor05_spike_train_metric}. In classification tasks, a common approach
+is to instead use a rate-based scheme, using the output spike counts and the
+cross-entropy loss.
 
-There are several problems with spike-compatible gradient-based methods. First,
-most of these methods cannot train neurons in the hidden layers: they can only
-train neurons at the final layer, that receive the desired target output
+\subsubsection{Converting ANNs into SNNs}
+
+One approach is converting trained ANN models into
+SNNs~\cite{rueckauer16_theor_tools_conver_analog_to,zambrano16_fast_effic_async_neural_comput}.
+One can achieve the same input-output mapping as a deep ANN with a converted
+SNN. Common ANN layers such as softmax, batch normalization and max-pooling
+layers have their corresponding spiking counterparts. This method allows for
+using the full toolkit of deep-learning methods in training the ANNs prior to
+conversion. However, only a subset of ANN architectures can be converted into
+SNNs. For example, the activations need to be always non-negative, to match the
+firing rates of SNNs. These converted ANNs are also limited to using rate-codes,
+which as discussed in~\autoref{sec:motiv-spik-neur} is an inefficient spike
+encoding.
+
+\subsubsection{Smooth models}
+
+All gradient-based methods applied directly to SNNs require overcoming the
+discontinuous, binary nature of spike trains. One simple solution is to use
+smooth models.
+
+First, neuron models with a smooth spike generating process like the
+Hodgkin-Huxley, Morris-Lecar and FitzHugh-Nagumo models need no further
+approximation techniques. Next, stochastic models also allow the definition of
+gradients on expectations, allowing the log-likelihood of a spike train to be
+optimized using gradient descent~\cite{pfister06_optim_spike_timin_depen_plast}.
+
+\subsubsection{Surrogate Gradients}
+
+Rather than using a smooth model, surrogate gradient methods allow for
+backpropagation without using a smooth model. Surrogate gradient methods replace
+the spiking non-linearity by the derivative of a smooth function. SpikeProp
+approximates the membrane threshold function at a local area with a linear
+function, introducing gradients and computing the exact formulae for error
+backpropagation for synaptic weights and spike times~\cite{spikeprop}. Others
+have modified the threshold function with a gate function~\cite{NIPS2018_7417},
+used the alpha transfer function to derive gradient update
+rules~\cite{comsa19_tempor_codin_spikin_neural_networ}, and approximate the
+Dirac delta spikes with a probability density function~\cite{NIPS2018_7415}.
+
+\subsubsection{Online Gradient-based Learning Rules}
+
+While surrogate gradient methods enable backpropagation, these methods use
+non-local information and cannot be implemented on neuromorphic hardware. Most
+of these methods cannot train neurons in the hidden layers: they can only train
+neurons at the final layer, that receive the desired target output
 pattern~\cite{urbanczik09_gradien_learn_rule_tempot,training_deep_snn_bpp_lee}.
-Second, the discontinuous, binary nature of spiking output needs to be
-addressed. For example, SpikeProp approximates the membrane threshold function
-at a local area with a linear function, introducing gradients and computing the
-exact formulae for error backpropagation for synaptic weights and spike
-times~\cite{spikeprop}. Others have modified the threshold function with a gate
-function~\cite{NIPS2018_7417}, used the alpha transfer function to derive
-gradient update rules~\cite{comsa19_tempor_codin_spikin_neural_networ}, and
-approximate the dirac-delta spikes with a probability density
-function~\cite{NIPS2018_7415}.
 
-Another approach is converting trained ANN models into
-SNNs~\cite{rueckauer16_theor_tools_conver_analog_to}. Common ANN layers such as
-softmax, batch normalization and max-pooling layers have their corresponding
-spiking counterparts.
+One can relax the requirements of gradient
+backpropagation~\cite{neftci19_surrog_gradien_learn_spikin_neural_networ}, to
+achieve local learning rules. Random backpropagation algorithms sidestep the
+problem of non-locality, by replacing the weights in the backpropagation rule
+with random weights. On some benchmark tasks, this lead to little loss in
+performance. SuperSpike uses random feedback weights, and surrogate gradients to
+derive a biologically-plausible, online learning rule suitable for hardware
+implementations~\cite{zenke17_super}. DECOLLE also uses surrogate gradients in a
+linear IF neuron model, using a local and rate-based cost function to derive
+local update rules from partial first
+principles~\cite{kaiser18_synap_plast_dynam_deep_contin}.
 
 Equilibrium Propagation was recently proposed to solve the neurobiological
 incompatibilities of backpropagation~\cite{10.3389/fncom.2017.00024}. Because
@@ -642,13 +817,50 @@ communication using binary-valued signals, step-size annealing was used to train
 spiking neural networks with Equilibrium Propagation
 ~\cite{pmlr-v89-o-connor19a}.
 
-\subsection{Future Research Areas\label{sec:future-rese-areas}}
+\subsection{Conclusion\label{sec:background_conclusion}}
 
-A nascent area is local learning on neuromorphic chips. Thus far spiking neural
-networks are simulated and trained before deployment on a neuromorphic chip. In
-Intel's Loihi chip, each core contains a learning engine that can update
-synaptic weights using the 4-bit microcode-programmed learning rules that are
-associated with that synapse. This opens up areas for online learning.
+In this chapter, we have discussed the principles and motivations behind spiking
+neural networks. We also presented a taxonomy of different spiking neuron
+models, and their tradeoffs. We focused in particular on the integrate-and-fire
+family, specifically the spike response model, because of its widespread
+adoption in the neuromorphic community. We then discussed the challenges in
+training spiking neuron models, and techniques to side-step them.
+
+The gold standard is an online learning rule that uses only local information,
+that can be implemented on neuromorphic hardware. We have seen methods such as
+SuperSpike and DECOLLE, which combine a variety of approximation techniques to
+derive gradient-based local update rules. These methods do not yet scale well to
+deep SNNs. How to perform credit assignment using local information in deep
+networks is still an open research question.
+
+\subsection{Future Work}
+
+In this review, we have spoken mainly about the techniques and the theory, but
+have little mention of the experiments performed. There are unsurprisingly few
+publicly available event-based datasets. Many research papers take an existing
+non-spiking dataset such as MNIST, and convert them into spike trains using a
+Poisson-encoding process. Others use the N-MNIST and N-Caltech101
+dataset~\cite{orchard15_conver_static_image_datas_to}, or the
+DvsGesture~\cite{dvsgesture} dataset. The spike trains in these dataset are much
+less sparse than the naturally occurring spikes in biological neurons. In
+addition, both SNNs and ANNs demonstrate strong experimental results on these
+datasets, which may suggest that they are too easy. We would like to see more
+diverse and challenging publicly-available spiking datasets, and strong and
+reliable benchmarking for the various SNN architectures and learning methods.
+
+There has also been a resurgence of interest in combining differential equation
+solvers with neural networks~\cite{NIPS2018_7892}. All the learning methods
+described in this chapter require the discretization in time. Since the neuronal
+dynamics of many spiking neurons can be represented as differential equations,
+continuous-time SNNs may be worth looking into.
+
+Finally, a future direction of research may be the interpretation of spiking
+neural networks. In deep learning, we have come to learn that convolutional
+neural networks learn low-level features in lower layers, and higher level
+features in deeper layers by visualizing the learned filters. Understanding what
+the spiking neural network is learning at each layer, and how the different
+layers interact may provide answers to open neuroscience questions, as well as
+open up new research directions in learning algorithms.
 
 \chapter{Event-driven Visual-Tactile Sensing and Learning for Robots\label{cha:vtsnn}}
 
