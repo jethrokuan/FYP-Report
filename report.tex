@@ -1,5 +1,4 @@
 \documentclass[fyp]{socreport}
-\usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{charter}
 \usepackage{subcaption}
@@ -27,6 +26,11 @@ sorting=none]{biblatex}
 \advisor{Dr.\ Harold Soh}
 \deliverables{
   \item Report: 1 Volume}
+
+\acknowledgement{ This work was supported by the
+  Science and Engineering Research Council, Agency of Science, Technology and
+  Research, Singapore, through the National Robotics Program under Grant No.172
+  25 00063. }
 \maketitle
 
 \begin{abstract}
@@ -65,6 +69,13 @@ soy-milk the carton contains. These actions (and inferences) are performed
 robustly using a power-efficient neural substrate --- compared to popular deep
 learning approaches for using multiple sensor modalities in artificial systems,
 human brains require far less energy~\cite{li2016energyefficiency}.
+
+This thesis is an exploration of spiking neural networks. These neural networks
+use neuronal units that mimic the biological neuron, and possess desirable
+characteristics such as low latencies, and the ability to handle data at high
+temporal resolution. Traditional neural networks deployed on the currently
+commonplace hardware like GPUs face the Von Neumann bottleneck, and have
+fundamental limitations.
 
 In this work, we take crucial steps towards efficient visual-tactile perception
 for robotic systems. We gain inspiration from biological systems, which are
@@ -111,32 +122,38 @@ In \autoref{cha:background}, we first provide a comprehensive study on SNNs. We
 discuss why and when we should use spiking neural networks, and how to train
 them. Crucially, we draw similarities between spiking neural networks and
 recurrent neural networks, a recently discovered property that enables the
-end-to-end training of these networks using gradient-based methods.
+end-to-end training of these networks using gradient-based methods. We then
+discuss the prior art for visual-tactile systems and event-based sensors in
+\autoref{cha:related}.
 
-In \autoref{cha:vtsnn}, we contribute an event-driven visual-tactile
+Next, in \autoref{cha:vtsnn}, we introduce our event-driven visual-tactile
 spiking-neural network (VT-SNN), which enables fast perception on two
 event-based sensors: the NeuTouch~\cite{aiskinLee}, and the Prophesee event
-camera. Here, we detail the experimental setups for the robotic tasks: object
+camera.
+
+In \autoref{cha:exp_setup}, we detail the robot hardware setup used across our
+experiments. Next, we discuss our experimental methods and results for our two
+robotics tasks: container classification (\autoref{sec:container_class}), and
+slippage detection (\autoref{sec:slippage}). We run the trained models on the
+Intel Loihi in~\autoref{cha:neuromorphic} to quantify the gains in
+power-efficiency and inference speeds. Finally, we conclude our work
+(\autoref{cha:conclusion}), and provide future research directions.
+
+We then detail the experimental setups for the robotic tasks: object
 classification and slippage detection. We discuss our experimental results, and
 demonstrate that spiking neural networks achieve competitive (and sometimes
 superior) performance over deep learning methods, and in addition having the
 unique property of early classification.
 
-This thesis was originally an exploratory project on spiking neural networks.
-In the duration of this research, several different research directions have
-been explored. In the chapters that follow, we discuss research directions we
-have taken that were later abandoned.
-
-In \autoref{cha:snnrl}, we evaluate the feasibility of spiking neural networks
-as agents in a reinforcement learning setting. Reinforcement learning
-environments are often temporal in nature, due to the interdependence between
-states and actions in the environment. We hypothesised that spiking neural
-agents were well suited in many reinforcement learning settings.
+In the appendix, we include additional work on evaluate the feasibility of
+spiking neural networks as agents in a reinforcement learning
+setting~\autoref{cha:snnrl}. This research direction was explored in the
+first half of the project, and later abandoned.
 
 \section{Individual Contributions}
 The event-driven visual-tactile perception system is a joint work between our
 group, the Collaborative Learning \& Adaptive Robots (CLeAR) group, and the TEE
-research group.
+research group. This work has been submitted to ROS 2020.
 
 The TEE research group contributed the novel NeuTouch tactile sensor, which was
 used to collect data for the tactile modality. The CLeAR group contributed: (1) a
@@ -476,7 +493,7 @@ potential of the neuron, accumulating charge from input neurons. The leaky
 integrate-and-fire model introduces an additional ``leak'' term, which controls
 the decay of the neuron's membrane potential over time.
 
-\section{The Spike-response Model}
+\section{The Spike-response Model\label{sec:spike-response-model}}
 
 The spike-response model~\cite{gerstner2001framework} is a generalization of the
 leaky integrate-and-fire model. We review this model because this neuron model
@@ -774,7 +791,7 @@ approximation techniques. Next, stochastic models also allow the definition of
 gradients on expectations, allowing the log-likelihood of a spike train to be
 optimized using gradient descent~\cite{pfister06_optim_spike_timin_depen_plast}.
 
-\subsubsection{Surrogate Gradients}
+\subsubsection{Surrogate Gradients\label{sec:surrogate-gradients}}
 
 Rather than using a smooth model, surrogate gradient methods allow for
 backpropagation without using a smooth model. Surrogate gradient methods replace
@@ -862,63 +879,639 @@ the spiking neural network is learning at each layer, and how the different
 layers interact may provide answers to open neuroscience questions, as well as
 open up new research directions in learning algorithms.
 
-\chapter{Event-driven Visual-Tactile Sensing and Learning for Robots\label{cha:vtsnn}}
+\chapter{Related Work\label{cha:related}}
 
-In the introduction, we have alluded to VT-SNN, an event-driven
-visual-tactile perception system using spiking neural networks. This chapter
-describes the work done on that project. In \autoref{sec:snnrl_related}, we
-discuss the prior art for visual-tactile systems. In \autoref{sec:snnrl_vtsnn},
-we discuss model architecture and model training. In
-\autoref{sec:snnrl_exp_setup}, we detail the robot hardware setup used across
-our experiments. Next, we discuss our experimental methods and results for our
-two robotics tasks: container classification
-(\autoref{sec:snnrl_container_class}), and slippage detection
-(\autoref{sec:snnrl_slippage}). We run the trained models on the Intel Loihi
-in~\autoref{sec:snnrl_neuromorphic} to quantify the gains in power-efficiency
-and inference speeds. Finally, we conclude our work
-(\autoref{sec:snnrl_conclusion}), and provide future research directions
-(\autoref{sec:snnrl_future_work}).
+In this section, we give an overview of related work on visual-tactile
+perception for robotics.
+\section{Visual-Tactile Perception for Robots}
 
-This work has been submitted to ROS 2020.
+Research has shown that humans process visual and tactile sensory information in
+similar ways~\cite{Lacey:2015}, motivating the search for systems that can
+efficiently exploit both modalities. Work on visual-tactile sensing dates back
+to at least 1984, where vision and tactile data was used to create a surface
+description of primitive objects~\cite{allenil_surfac}. In this work, tactile
+information plays a supporting role for vision, in part due to the low
+resolution of tactile sensors at that time. Tactile sensing was also used to
+enhance a robot's ability to categorize objects through behavioural
+exploration~\cite{sinapov14_learn}, as well as surface classification using deep
+neural
+networks~\cite{gao2016deep}.~\citeauthor{li18_slip_detec_combin_tactil_visual_infor}
+also used sensor information from a both a tactile sensor, and a camera to
+achieve high-accuracy slip detection on unseen objects with a trained deep
+neural network~\cite{li18_slip_detec_combin_tactil_visual_infor}. Visual-tactile
+data has also been successfully used to learn compact multimodal representations
+using self-supervised learning for use in policy learning~\cite{lee2019making}.
 
-\section{Related Work\label{sec:snnrl_related}}
+Recent advancements in tactile technology~\cite{shan2017robotic} have encouraged
+the use of tactile sensing for more complex tasks, including object
+exploration~\cite{liu2016visual}, shape completion~\cite{varley2017visual}, and
+slip detection~\cite{reinecke2014experimental,calandra2018more}. One popular
+sensor is the BioTac; similar to a human finger, it uses textured skin, allowing
+vibration signatures to be used for high accuracy material and object
+identification and slip detection~\cite{su2015force}. Other recent works include
+the Gelsight~\cite{yuan2017gelsight} --- an optical-based tactile sensor --- for
+visual-tactile slip detection, grasp stability and texture recognition.
 
-In this section, we give an overview of related work on visual-tactile perception for robotics. Much of the work on event-based perception has been covered in~\autoref{cha:background}, and will not be repeated here.
+Different from the prior work, rather than leveraging conventional deep learning
+methods using traditional synchronous sensors, our sensors and learning method
+are both event-driven. The novel NeuTouch sensor we used addresses limitations
+in existing tactile sensing technology, making it suitable for use in robot
+end-effectors. Our work contributes a system that is able to handle the high
+temporal resolution of this sensor.
 
-\subsection{Visual-Tactile Perception for Robots}
+\section{Event-based Perception: Sensors}
 
-% To this end, we have seen advancements in both tactile sensing and computer
-% vision, using deep neural networks (DNNs). Different types of tactile sensors
-% have been used in robotic manipulation in slippage
-% detection~\cite{meier2016tactile} and tactile object
-% recognition~\cite{gao2016deep}. Convolutional neural networks (CNNs) have also
-% become commonplace in vision tasks, such as image segmentation, and object
-% recognition. Deep reinforcement learning has also been successfully used for
-% learn agents that are successful in performing robotic tasks, using vision
-% data~\cite{levine2017handeye}. The remarkable success of deep learning can be
-% attributed to advancements in gradient-based training methods and model
-% architectures, allowing larger and deeper models to be trained and deployed.
+Work on event-based perception has focused primarily on vision
+(see~\cite{Gallego2018} for a comprehensive survey). The emphasis on vision can
+be attributed both to its applicability across many tasks, as well as the recent
+availability of event cameras such as the DVS and Prophesee Onboard. Unlike
+conventional optical sensors, event cameras capture pixel changes
+asynchronously. SNNs are often evaluated with the DvsGesture
+dataset~\cite{dvsgesture}, a publicly-available dataset of event data captured
+from the DVS camera, with the task of hand gesture recognition.
 
-\section{Visual-Tactile Spiking Neural Network (VT-SNN)\label{sec:snnrl_vtsnn}}
+Event-based sensors have been successfully used in conjunction with deep
+learning techniques~\cite{Gallego2018}. The binary events are first converted
+into real-valued tensors, which are processed downstream by deep ANNs. This
+approach yields good models (e.g.\ for motion segmentation~\cite{Mitrokhin2019}, optical flow
+estimation~\cite{zhu2018ev}, and car steering
+prediction~\cite{maqueda2018event}), but at high compute cost. Spiking neural
+networks have desirable characteristics such as low latency, high temporal
+resolution and low power consumption (see~\autoref{sec:motiv-spik-neur}),
+that make more suitable for learning with event data.
 
-\section{Robot and Sensors Setup\label{sec:snnrl_exp_setup}}
+We have discussed in detail the difficulties and training methods for spiking
+neural networks in~\autoref{sec:train-spik-neur}. SNNs do not yet outperform
+their deep ANN cousins on pseudo-event image datasets, and the research
+community is exploring better training methods for real event-data.
 
-\section{Container \& Weight Classification\label{sec:snnrl_container_class}}
+In this work, we develop a visual-tactile SNN (VT-SNN) trained using
+SLAYER~\cite{NIPS2018_7415}, a recent approximate backpropagation method for
+SNNs. There is little work involving on multi-modal SNNs, and prior work has
+focused on audio-video data~\cite{chevallier2005distributed,Rathi2018} (e.g.,
+for emotion detection~\cite{mansouri2019speech}). In contrast, we develop a
+multi-modal SNN for visual and tactile event data; note that the latter is in an
+``active'' sense with different characteristics for audio. 
 
-\section{Rotational Slippage Classification\label{sec:snnrl_slippage}}
+\chapter{Visual-Tactile Spiking Neural Network (VT-SNN)\label{cha:vtsnn}}
 
-\section{Gains on Neuromorphic Hardware\label{sec:snnrl_neuromorphic}}
+The Visual-Tactile Spiking Neural Network (VT-SNN) enables learning and
+perception by using both visual and tactile modalities, and can be easily
+extended to incorporate other event sensors.
 
-\section{Conclusion\label{sec:snnrl_conclusion}}
+\section{Model Input}
 
-\section{Future work\label{sec:snnrl_future_work}}
+It is helpful to first describe the different inputs to the model, for each of
+the modalities. The tactile sensor has 39 taxels, with a positive and negative
+polarity channel per taxel. With 2 fingers, that gives an input size of 156.
+
+For the vision modality, we use a cropped window of resolution $200 \times 250$
+from the Prophesee event camera. The event-based video data also has 2 channels:
+for the positive and negative polarities. Hence, the input to our model is of
+dimensions $200 \times 250 \times 2$.
+
+\section{Model Architecture}
+
+From a bird's-eye perspective, the VT-SNN employs a simple architecture that
+first encodes the two modalities into individual latent (spiking)
+representations, that are combined and further processed through additional
+layers to yield a task-specific output. In the following, we detail the network
+architectures used in our experiments.
+
+For our experiments where our model is only provided with tactile data, the
+Tactile SNN employs a fully-connected (FC) network consisting of 2 dense spiking
+layers.
+
+The Vision SNN uses 3 layers; the first layer is a pooling layer with kernel
+size and stride length of 4. The pooled spike train is passed as input to a
+2-layer FC architecture identical to the Tactile SNN. The tactile and vision
+encoders have output sizes of 50 and 10 respectively.
+
+For experiments where both modalities are available to the model, we used a
+multi-modal architecture very much inspired by existing multi-modal work in
+the field of multi-modal fusion. We use two layer FC architectures to encode the
+spiking input from both modalities respectively. The tactile and vision encoders
+have output sizes of 50 and 10, respectively. The encoded spike-trains of both
+modalities are then concatenated, and passed into a dense spiking layer,
+generating output spikes.
+
+Note that the output dimensionality is dependent on the task: 20 for container \&
+weight classification, and 2 for rotational slip classification. The model
+architectures are agnostic to the size of the input time dimension (number of
+discrete timesteps in the input spike train), and the same model architectures
+are used in both classification tasks.
+
+We use the Spike Response Model (SRM), which we discuss extensively
+in~\autoref{sec:spike-response-model}.
+
+\section{Model Training}
+
+We optimize our spiking neural networks using SLAYER~\cite{NIPS2018_7415}. As
+discussed in~\autoref{sec:diff-train}, the binary, non-continuous nature of
+spiking data means their derivatives are undefined, which prohibits a direct
+application of backpropagation to SNNs. SLAYER overcomes this problem via a
+stochastic spiking neuron approximation to derive an approximate gradient, and a
+temporal credit assignment policy to distribute errors. This approach is a
+surrogate gradient method, discussed extensively
+in~\autoref{sec:surrogate-gradients}.
+
+SLAYER trains models ``offline'' on GPU hardware. Hence, the spiking data needs
+to be binned into fixed-width intervals during the training process, but the
+resultant SNN model can be run on neuromorphic hardware. We used a
+straight-forward binning process where the (binary) value for each bin window
+$V_{w}$ was 1 whenever the total spike count in that window $\sum_{w} S$
+exceeded a threshold value $S_{\text{min}}$:
+
+\begin{equation} \label{eqn:bin}
+  V_w = \begin{cases}
+    1 & \sum_{w} S \ge S_\text{min} \\
+    0 & \text{otherwise.}
+  \end{cases}
+\end{equation}
+
+Following~\cite{NIPS2018_7415}, class prediction is determined by the
+number of spikes in the output layer spike train; each output neuron is
+associated with a specific class and the neuron that generates the most spikes
+represents the winning class. We trained the model by minimizing the loss:
+
+\begin{align}
+    \mathcal{L} = \frac{1}{2} \sum_{t=0}^T \left( \sum \mathbf{s}^o(t) - \sum \mathbf{\Tilde{s}}^o(t) \right)^2
+    %\mathcal{L}(t) = \sum_{T_s} \mathbf{s}^o(t) - \sum_{T_s} \mathbf{\Tilde{s}}(t) + \gamma \mathcal{L}_a(t)
+\end{align}
+
+which captures the difference between the observed output spike count
+$\sum \mathbf{s}^o(t)$ and the desired spike count
+$\sum \mathbf{\Tilde{s}}^o(t)$ for output neuron $o$.
+
+Appropriate counts have to be specified for the correct and incorrect class and
+are application-specific hyperparameters. We tuned them manually for each task.
+In our experiments, setting the positive class count to $\approx 50\%$ of the
+maximum number of spikes (across each input within the considered time interval)
+worked well. For example, if the maximum number of incoming spikes across the
+neurons was 300, then we set a desired spike count of 150 for the positive
+class. The negative class counts were set to a low value (5 for our
+experiments).
+
+From initial trials, we observed that training solely with the classification
+loss above on our data led to rapid over-fitting and poor performance on a
+validation set. We explored several different techniques to mitigate this issue
+(e.g., $\ell_1$ regularizers and dropout), but found a simple $\ell_2$
+regularization term led to the best results:
+
+\begin{align}
+    \mathcal{\hat{L}} = \mathcal{L} +  \gamma_2 \| \theta \|^2_2
+\end{align}
+
+where $\theta$ comprise the network weights. For all our SNN models, we
+optimized $\mathcal{\hat{L}}$.
+
+\chapter{Robot and Sensors Setup\label{cha:exp_setup}}
+
+In this section, we describe the robot hardware setup used across our
+experiments (Fig. \ref{fig:robotsetup}). We used a 7-DoF Franka Emika Panda arm
+with a Robotiq 2F-140 gripper and collected data from four primary sensors
+types: NeuTouch, Prophesee Onboard, RGB cameras, and the Optitrack motion
+capture system. The latter two are non-event sensors and their data streams were
+not used in VT-SNN.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.86\textwidth]{images/robotsetup/robot_setup_wsensors.pdf}
+  \caption{Robot Experiment Setup. (\textbf{Left}) Close-up of the Franka Emika
+    Panda arm and sensors; a NeuTouch sensor was attached on each Robotiq
+    gripper finger. The Prophesee event and Realsense cameras were mounted on
+    the arm and pointed towards the center of the gripper's grasp area. Our
+    prototype ACES decoder was mounted on top of the arm's control panel.
+    (\textbf{Right}) A view of the object classification experiment showing
+    three OptiTrack cameras (11 were used, and out of scene), the RGB scene
+    camera, and the object (soy milk carton) to be grasped and lifted.}
+\label{fig:robotsetup}
+\end{figure}
+
+\section{NeuTouch Tactile Sensor}
+We mounted two NeuTouch sensors to the Robotiq 2F-140 gripper and the ACES
+decoder on the Panda arm (Fig. \ref{fig:robotsetup}, left). To ensure consistent
+data, we performed a sensor warm-up before each data collection session and
+obtained baseline results to check for sensor drift. Specifically, we repeated
+100 cycles of: closing the gripper onto a flat stiff object (the `9 hole peg
+test' from the YCB dataset~\cite{ycb2015}) for 3 seconds, opening the gripper,
+and pausing for 2 seconds. We then collected a set of benchmark data, i.e., 20
+repetitions of closing the gripper onto the same `9 hole peg test' for 3
+seconds. Throughout our experiments, we periodically tested for sensor drift by
+repeating the closing test on the `9 hole peg test' and then examining the
+sensor data; no significant drift was found throughout our experiments.
+
+\section{Prophesee Event Camera}
+Event-based vision data was captured using the Prophesee
+Onboard\footnote{Details available at \url{https://www.prophesee.ai}.}. Similar
+to the tactile sensor, each camera pixel fires asynchronously and a positive
+(negative) spike is obtained when there is an increase (decrease) in luminosity.
+The Onboard was mounted on the arm and pointed towards the gripper to obtain
+information about the object of interest (Fig. \ref{fig:robotsetup}). Although
+the camera has a maximum resolution of 640 x 480, we captured spikes from a
+cropped 200 x 250 rectangular window to minimize noise from irrelevant regions.
+The event camera bias parameters were tuned following recommended
+guidelines\footnote{\url{https://support.prophesee.ai/portal/kb/articles/bias-tuning}}
+and we use the same parameters throughout all experiments.
+
+During preliminary experiments, we found the Onboard to be sensitive to high
+frequency ($\geq 100$Hz) luminosity changes; in other words, flickering light
+bulbs triggered undesirable spikes. To counter this effect, we used six Philips
+12W LED White light bulbs mounted around the experiment setup to provide
+consistent non-flickering illumination.
+
+\section{RGB Cameras}
+We used two Intel RealSense D435s to provide additional non-event image
+data\footnote{The infrared emitters were disabled as they increased noise for
+  the event camera and hence, no depth data was recorded.}. The first camera was
+mounted on the end-effector with the camera pointed towards the gripper
+(providing a view of the grasped object), and the second camera was placed to
+provide a view of the scene. The RGB images were used for visualization and
+validation purposes, but not as input to our models; future work may look into
+the integration of these standard sensors to provide even better model
+performance.
+
+\section{OptiTrack}
+The OptiTrack motion capture system was used to collect object movement data for
+the slip detection experiment. We attached 6 reflective markers on the rigid
+parts of the end-effector and 14 markers on the object of interest. Eleven
+OptiTrack Prime 13 cameras were placed strategically around the experimental
+area to minimize tracking error (Fig. \ref{fig:robotsetup}, right); each marker
+was visible to most if not all cameras at any instance, which resulted in
+continuous and reliable tracking. We used Motive Body v1.10.0 for marker
+tracking and manually annotated the detected markers.
+
+From initial tests, we found the OptiTrack to give reliable position estimates
+with error $\leq 1$mm at 120Hz.
+
+\section{Further Details}
+In addition to the above sensors, we also collected proprioceptive data for the
+Panda arm and Robotiq gripper; these are not currently used in our models but
+can be included in future work.
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.90\textwidth]{images/robotsetup/RobotMotion_Exp1.pdf}
+\caption{Data collection procedure for the container \& weight classification
+  task. The robot end-effector starts at 10 cm above the grasp point. It then
+  \emph{approaches} the coffee can, stopping at the 2-second mark. The gripper
+  then starts to close, \emph{grasping} it at around the 4-second mark,
+  resulting in tactile spikes. At the 6-second mark, the robot \emph{lifts} it
+  by 5cm above the table. The robot then holds it in the same position till the
+  8.5-second mark. For container and weight classification, we only use data
+  starting from the 2-second mark.}
+\label{fig:robot_motion}
+\end{figure*}
+
+
+\chapter{Experimental Results\label{cha:exp_results}}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.87\columnwidth]{images/robotsetup/objects_exp1_small.png}
+\caption{(\textbf{Left}) Containers used for container classification task:
+  coffee can, plastic soda bottle, soy milk carton, and metal tuna can.
+  (\textbf{Right}) The objects in our expanded dataset ($36$ object classes with
+  various visual and tactile profiles) collected using the same protocol.}
+\label{fig:expobjects}
+\end{figure}
+
+\section{Container \& Weight Classification\label{sec:container_class}}
+
+Our first experiment applies our event-driven perception framework ---
+comprising NeuTouch, the Onboard camera, and the VT-SNN --- to classify
+containers with varying amounts of liquid. Our primary goal was to determine if
+our multi-modal system was effective at detecting differences in objects that
+were difficult to isolate using a single sensor. Note that our objective was
+\emph{not} to derive the {best possible classifier}; indeed, we did not include
+proprioceptive data which would likely have improved
+results~\cite{lee2019making}, nor conduct an exhaustive (and computationally
+expensive) search for the best architecture. Rather, we sought to understand the
+potential benefits of using both visual and tactile spiking data in a reasonable
+setup.
+
+\subsection{Methods and Procedure}
+
+\noindent\textbf{Objects.} We used four different containers: an aluminium
+coffee can, a plastic Pepsi bottle, a cardboard soy milk carton and a metal tuna
+can (Fig. \ref{fig:expobjects}). These objects have different degrees of
+hardness; the soy milk container was the softest, and the tuna can was the most
+rigid. Because of size differences, each container was filled with differing
+amounts of liquid; the four objects contained a maximum of 250g, 400g, 300g, and
+140g, respectively\footnote{The can did not have a cover and we filled it with a
+  packet of rice to avoid spills and possible liquid damage. The tuna can was
+  placed with the open side facing downwards so, the rice was not visible.}. For
+each object, we collected data for \{0\%, 25\%, 50\%, 75\%, 100\%\} of the
+respective maximum amount. This resulted in 20 object classes comprising the
+four containers with five different weight levels each.
+
+\noindent\textbf{Robot Motion.} The robot would grasp and lift each object class
+fifteen times, yielding 15 samples per class. Trajectories for each part of the
+motion was computed using the MoveIt Cartesian Pose
+Controller~\cite{coleman2014reducing}. Briefly, the robot gripper was
+initialized 10cm above each object's designated grasp point. The end-effector
+was then moved to the grasp position (2 seconds) and the gripper was closed
+using the Robotiq grasp controller with a force setting of 1 (4 seconds). The
+gripper then lifted the object by 5cm (2 seconds) and held it for 0.5 seconds.
+
+\noindent\textbf{Data Pre-processing.}
+For both modalities, we selected data from the grasping, lifting and holding
+phases (corresponding to the 2.0s to 8.5s window in Figure
+\ref{fig:robot_motion}), and set a bin duration of 0.02s (325 bins) and a
+binning threshold value $S_{\text{min}} = 2$. We used stratified K-folds to
+create 5 splits; each split contained 240 training and 60 test examples with
+equal class distribution. After processing, the tactile data has shape
+$(2, 39, 325)$ representing the polarities, taxels, and bins respectively, and
+the vision data has shape $(2, 200, 250, 325)$, representing the polarities,
+height and width of the image, and bins respectively.
+
+\noindent\textbf{Classification Models.}
+
+We compared the SNNs against conventional deep learning, specifically
+Multi-layer Perceptrons (MLPs) with Gated Recurrent Units
+(GRUs)~\cite{cho2014learning}. We trained each model using (i) the tactile data
+only, (ii) the visual data only, and (iii) the combined visual-tactile data.
+Note that the SNN model on the combined data corresponds to the VT-SNN. When
+training on a single modality, we use Visual or Tactile SNN as appropriate. We
+implemented all the models using PyTorch. The SNNs were trained with SLAYER to
+minimize spike count differences~\cite{NIPS2018_7415} and the ANNs were trained
+to minimize the cross-entropy loss using RMSProp. All models were trained for
+500 epochs.
+
+\begin{table}
+  \centering
+  \caption{Container \& Weight Classification: Average Accuracy with Standard Devision in Brackets}
+  \label{tbl:classacc325}
+  \begin{tabular}{l|ccc}
+    \hline
+    \hline
+    \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
+    \hline
+    SNN  & {0.700} (0.045) & 0.579 (0.064)  & 0.811 (0.048)\\
+    \hline
+    ANN (MLP-GRU) & 0.497 (0.059) & 0.429 (0.054) & 0.437 (0.062)\\
+    \hline
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{Results and Analysis}
+
+\noindent\textbf{Model Comparisons.}
+\ttnote{The test accuracies of the models are summarized in Table
+  \ref{tbl:classacc325}. The tactile modality SNN model gives 12\% higher
+  accuracy than vision-only modality. The multi-modal SNN model achieves the
+  highest score of 81\%, an improvement of over 11\% and compared to the tactile
+  modality variant.}
+
+We were initially surprised by the accuracy attained by the vision-only model;
+we expected performance $\approx 20\%$ since since the containers were easily
+distinguishable by sight, but the weight category was not. However, a closer
+examination of the data showed that (i) the Pepsi bottle was not fully opaque
+and the water level was observable by Onboard on some trials, and (ii) the
+Onboard was able to see object deformations as the gripper closed, which
+revealed the ``fullness'' of the softer containers.
+
+Figure \ref{fig:spikeclass} gives an instructive example showing the advantage
+of fusing both modalities. It shows the output spikes from the different SNN
+models for a coffee can with 100\% weight. The models trained on tactile and
+vision data are uncertain of the container and the weight category respectively.
+We see the tactile model is unable to discern between tuna can and coffee can.
+On the other hand, the vision model correctly predicts the container but is
+unsure about the weight category. The combined visual-tactile model incorporates
+information from both the modalities and is able to predict the correct class
+(both container and weight categories) with high certainty.
+
+The SNN models performed far better than the ANN models, particularly for the
+combined visual-tactile data. We had expected comparable performance since
+MLP-GRU models are known to perform well on a variety of tasks. The poor
+performance was possibly due to the relatively long sample durations (325
+time-steps) and the large number of parameters in the ANN models, relative to
+the size of our dataset.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.80\columnwidth]{images/analysis/spike_class_output.pdf}
+\caption{Output spikes for the models trained with different modalities with
+  correct and incorrect predictions in green and red, respectively. The weight
+  categories are arranged from 0\% to 100\% (bottom to top) for each container.
+  The tactile model is unable to distinguish between a coffee can and a tuna can
+  while the vision model is uncertain about the weight. The combined
+  visual-tactile model predicts the correct class with high certainty.}
+\label{fig:spikeclass}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.85\columnwidth]{images/analysis/object_det_over_time.pdf}
+  \caption{Container and weight classification accuracy over time. Lines show
+    average test accuracy and shaded regions represent the standard deviations.
+    Vision-only classification results in higher early accuracy as visual spikes
+    are obtained as the gripper is closing, and tactile events arise only upon
+    contact with the object. Combining both vision and tactile event data via
+    our VT-SNN results in significantly higher accuracy, compared to using each
+    modality separately. }
+\label{fig:classtime}
+\end{figure}
+
+\noindent\textbf{Early Classification.} Instead of waiting for all the output
+spikes to accumulate, we can perform early classification based on the number of
+spikes seen up to time $t$. Fig. \ref{fig:classtime} shows the accuracies of the
+different models over time. The combined visual-tactile model achieves the
+highest accuracies overall, but between $0.5-3.0$s, the vision model was already
+able to distinguish between certain objects. We posit this was due to small
+movements (of the mounted camera) as the gripper closed, which resulted in
+changes perceived by the Onboard. As expected, tactile spikes do not emerge
+until contact is made with the object at $\approx 2$s. Potentially, future work
+may look into event-based ``attention'' models that are able to actively choose
+(or weight) modalities at different time instances.
+
+\section{Rotational Slip Classification}
+\label{sec:slip}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.95\columnwidth]{images/robotsetup/objects_exp2_small.png}
+\caption{(\textbf{Left}) Object for the Slip Classification Task with attached
+  OptiTrack markers. (\textbf{Right}) Object during a stable grasp (top) and
+  unstable grasp with rotational slip (bottom); the bottom object has additional
+  mass transferred to the left leg (from the right leg) that causes it to rotate
+  during lifting. Note that both objects had equal
+  mass.
+}
+\label{img:slips}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{Slip Detection Accuracy}
+\label{tbl:sdacc}
+\begin{tabular}{l|ccc}
+ \hline
+ \hline
+  \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
+  \hline
+ SNN & 0.837 (0.044)  & 1.0 (0.0) & 1.0 (0.0) \\
+ \hline
+ ANN (MLP-GRU) & 0.860 (0.069) & 1.0 (0.0)  & 1.0 (0.0) \\
+ \hline
+ \hline
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\columnwidth]{images/robotsetup/slip_graf.png}
+\caption{Top: Object and the fixed grasp point. Middle: Center of mass aligns with grasp point, and no rotational slip happens upon lifting the object. Bottom: Center of mass is shifted away from grasp point, rotational slip happens upon lift. }
+\label{img:slips}
+\end{figure}
+
+In this second experiment, we task our perception system to classify rotational
+slip, which is important for stable grasping; stable grasp points can be
+incorrectly predicted for objects with center-of-mass that are not easily
+determined by sight, e.g., a hammer and other irregularly-shaped items. Accurate
+detection of rotational slip will allow the controller to re-grasp the object
+and remedy poor initial grasp locations. However, to be effective, slip
+detection needs to be performed accurately and rapidly.
+
+Current state-of-the-art algorithms for finding grasp poses relies heavily on
+visual information \wcnote{Cite DexNet and PointnetGPD and etc}, and does not
+attempt to infer center of mass of the object. Such algorithms would
+under-perform for objects with an extreme center of mass such as a hammer.
+With a tactile sensor embedded on a robotic gripper, it would therefore be
+useful to be able to detect rotational slip, which will enable re-grasping to
+remedy the poor initial choice of grasp location.
+
+\subsection{Method and Procedure}
+
+\noindent\textbf{Objects.} Our test object was constructed using Lego Duplo
+blocks (Fig. \ref{img:slips}) with a hidden 10g mass in each leg. The
+``control'' object was designed to be balanced at the grasp point. To induce
+rotational slip, we modified the object by transferring the hidden mass from the
+right leg to the left. As such, the stable and unstable objects were visually
+identical and had the same overall weight.
+
+\vspace{0.3em}
+\noindent\textbf{Robot Motion.} The robot would grasp and lift both object
+variants 50 times, yielding 50 samples per class. Similar to the previous
+experiment, motion trajectories were computed using the MoveIt Cartesian Pose
+Controller~\cite{coleman2014reducing}. The robot was instructed to close upon
+the object, lift by 10cm off the table (in 0.75 seconds) and hold it for an
+additional 4.25 seconds. We tuned the gripper's grasping force to enable the
+object to be lifted, yet allow for rotational slip for the off-center object
+(Fig. \ref{img:slips}, right).
+
+\vspace{0.3em}
+\noindent\textbf{Data Preprocessing.} Instead of training our models across the
+entire movement period, we extracted a short time period in the lifting stage.
+The exact start time was obtained by analyzing the OptiTrack data; specifically,
+we obtained the baseline orientation distribution (for 1 second or 120 frames)
+and defined rotational slip as an orientation larger (or smaller) than 98\% of
+the baseline frames lasting more than four consecutive OptiTrack frames. We
+found slip occurred almost immediately during the lifting. Since we were
+interested in rapid detection, we extracted a 0.15s window around the start of
+the lift, and set a bin duration of 0.001s (150 bins) with binning threshold
+$S_\text{min} = 1$. Again, we used stratified K-folds to obtain 5 splits, where
+each split contained 80 training examples and 20 testing examples.
+
+We set a bin duration of 0.02s (325 bins) and a binning threshold value
+$S_{\text{min}} = 2$. We used stratified K-folds to create 5 splits; each split
+contained 240 training and 60 test examples with equal class distribution.
+
+\vspace{0.3em}
+\noindent\textbf{Classification Models.} The model setup and optimization
+procedure are identical to the previous task, with 3 slight modifications.
+First, the output size is reduced to 2 for the binary labels. Second, the
+sequence length for the ANN GRUs were set to 150, the number of time bins.
+Third, the SNN's desired true and false spike counts were set to 80 and 5
+respectively. Again, we compare SNN and ANN models using (i) the tactile data
+only, (ii) the visual data only, and (iii) the combined visual-tactile data.
+
+\subsection{Results and Analysis}
+
+\vspace{0.3em}
+\noindent\textbf{Model Comparisons.}
+The test accuracy of the models are summarized in in Table \ref{tbl:sdacc}. For
+both the SNN and ANN, both the vision and multi-modal models achieve 100\%
+accuracy. This suggests that vision data is highly indicative of slippage, which
+is unsurprising as rotational slip would produce a visually distinctive
+signature. Using only tactile events, the SNN and ANN achieving 84\% and 86\%
+accuracy respectively; we hypothesise that the soft Ecoflex skin deforms in the
+same direction as the rotational slip, potentially causing the tactile sensors
+to generate a less distinctive signature. If so, it would interesting to examine
+alternative skin materials that can mitigate this issue.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\columnwidth]{images/analysis/slip_over_time.pdf}
+\caption{Slip classification accuracy over time. Lines show average test
+  accuracy and shaded regions represent the standard deviations. Classification
+  using tactile only data results in higher early accuracy, but vision-only
+  classification is more accurate as sensory data is accumulated. Combining both
+  modalities results in higher accuracy, especially after 0.05s.}
+\label{fig:sliptime}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\columnwidth]{images/analysis/slip_class_output.pdf}
+\caption{Output spikes for the slip detection models trained with different modalities with correct prediction class in green. All models predict this sample correctly, but the tactile model spikes earlier compared to the other two models.}
+\label{fig:spikeslip}
+\end{figure}
+
+\vspace{0.3em}
+\noindent\textbf{Early Slip Detection.} Similar to the previous analysis on
+early container classification, Fig. \ref{fig:sliptime} summarizes slip test
+accuracy at different time points. The object starts being lifted at
+approximately 0.02s, and we see that by 0.1s, the multi-modal VT-SNN is able to
+classify slip perfectly. Again, we see vision and touch possess different
+accuracy profiles; tactile-only classification is more accurate early on
+(between $0.025-0.05$s), while vision-based classification is better after
+$\approx 0.6$s. In Fig. \ref{fig:spikeslip}, we see that the tactile model
+spikes earlier than the other models. Fusing both modalities results in an
+accuracy profile similar to vision but shifted towards higher accuracies. Again,
+performance may be improved by encouraging the multi-modal SNN to weigh the
+tactile-signals appropriately over time.
+
+%Again, this suggests that potential gains may be obtained by modifying the multi-modal SNN to optimize predictions across time.
+
+%This analysis also  event-based attention models that may fuse modalities more effectively.
+
+%Our analysis suggests a promising line of work in attention models for multi-modal fusion across time.
+
+%Future work may look into combining both modalities more effectively, e.g., by encouraging the VT-SNN to emphasize different modalities at different times. 
+
+\chapter{Gains on Neuromorphic Hardware\label{cha:neuromorphic}}
+
+\chapter{Conclusion\label{cha:conclusion}}
+
+In this work, we propose an event-based perception framework that combines
+vision and touch to achieve better performance on two robot tasks. In contrast
+to conventional synchronous systems, our event-driven framework can
+asynchronously processes discrete events and as such, may achieve higher
+temporal resolution and low latency, with low power consumption.
+
+We contributed NeuTouch, a novel neuromorphic event tactile sensor, and VT-SNN,
+a multi-modal spiking neural network that learns from raw unstructured event
+data. Experimental results on container \& weight classification, and rotational
+slip detection show that combining both modalities is important for achieving
+high accuracies. The SNN models achieve better performance compared to
+similarly-structured ANNs, and are capable of early classification based on
+emitted spikes. These promising results suggest that the event-driven paradigm
+is a promising line of enquiry; we believe event-based sensing and learning will
+form essential parts of next-generation real-time autonomous robots that are
+power-efficient. We hope that the results in this paper and our datasets will
+encourage research in this area.
+
+\section{Future work\label{sec:future_work}}
 
 \chapter{Reinforcement learning in Spiking Neural Networks\label{cha:snnrl}}
 
 \fixme{Introduction}
 \fixme{RL survey}
 
-\subsection{The Cartpole Environment}
+\section{The Cartpole Environment}
 
 
 We use the Cartpole-v0 environment, a popular environment provided by
@@ -940,7 +1533,7 @@ consecutive trials.
   \caption{The OpenAI CartPole environment}
 \end{figure}
 
-\subsection{Training a Simple ANN agent}
+\section{Training a Simple ANN agent}
 
 First, we attempt to solve the problem with a simple MLP ANN agent that takes in
 the four observations, and outputs as logits the probability of each action. The
@@ -965,7 +1558,7 @@ average episodic return of 200, ``solving'' the environment at 2000 time-steps.
 a simple MLP agent.}
 \end{figure}
 
-\subsection{Training a SNN agent}
+\section{Training a SNN agent}
 
 Similarly, we attempt to train the SLAYER model to solve the CartPole-v0. Each
 SLAYER layer takes in a spike train as input and produces a spike train as
@@ -1013,7 +1606,7 @@ particularly common as many spiking neural architectures are evaluated on a
 converted MNIST image dataset. Hence, we move towards training spiking neural
 networks on image observations.
 
-\subsection{The ImageCartpole Environment}
+\section{The ImageCartpole Environment}
 
 To bypass the encoding issue described earlier, we turn towards training agents
 on the pixels of the environment. We create a Cartpole environment such that the
