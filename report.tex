@@ -1,5 +1,6 @@
 \documentclass[fyp]{socreport}
 \usepackage[english]{babel}
+\usepackage{fullpage}
 \usepackage{charter}
 \usepackage{subcaption}
 \usepackage{fullpage}
@@ -70,20 +71,26 @@ robustly using a power-efficient neural substrate --- compared to popular deep
 learning approaches for using multiple sensor modalities in artificial systems,
 human brains require far less energy~\cite{li2016energyefficiency}.
 
-This thesis is an exploration of spiking neural networks. These neural networks
-use neuronal units that mimic the biological neuron, and possess desirable
-characteristics such as low latencies, and the ability to handle data at high
-temporal resolution. Traditional neural networks deployed on the currently
-commonplace hardware like GPUs face the Von Neumann bottleneck, and have
-fundamental limitations.
-
 In this work, we take crucial steps towards efficient visual-tactile perception
-for robotic systems. We gain inspiration from biological systems, which are
-\emph{asynchronous} and \emph{event-driven}. In contrast to resource-hungry deep
-learning methods, event-driven perception offers an alternative approach that
-promises power-efficiency and low-latency --- features that are ideal for
-real-time mobile robots. However, event-driven systems remain under-developed
-relative to standard synchronous perception methods~\cite{pfeiffer2018deep}.
+for robotic systems. We take full advantage of this sensor data using spiking
+neural networks. These neural networks use neuronal units that mimic the
+biological neuron, and possess desirable characteristics such as low latencies,
+and the ability to handle the event-based data at high temporal resolution.
+Traditional neural networks deployed on the currently commonplace hardware like
+GPUs face the Von Neumann bottleneck, and have fundamental limitations.
+
+We gain inspiration from biological systems, which are \emph{asynchronous} and
+\emph{event-driven}. Consider using a video camera to capture the flight of a
+bird for further analyses. The camera operates at a fixed frame rate (say, 30
+frames per second), and will fail to capture crucial information about its wing
+movement. In addition, the video camera captures unimportant information such as
+the skyline. Event-based sensors such as the camera sensors overcome this
+limitation by instead capturing changes in the scene --- events. In contrast to
+resource-hungry deep learning methods, event-driven perception offers an
+alternative approach that promises power-efficiency and low-latency --- features
+that are ideal for real-time mobile robots. However, event-driven systems remain
+under-developed relative to standard synchronous perception
+methods~\cite{pfeiffer2018deep}.
 
 We make multiple contributions that advance event-driven visual-tactile
 perception. First, to enable richer tactile sensing, we use the NeuTouch
@@ -295,10 +302,11 @@ advantage of these various coding schemes.
 \begin{table}
   \centering
   \small
-  \begin{tabular}{l|c}
+  \begin{tabular}{|l|l|}
     \hline
     \hline
     \textbf{Coding Scheme} & \textbf{Encoding of Information} \\
+    \hline
     Rate Coding & Firing rate of neurons \\
     Count Code & Count of number of neurons that spike during in time window \\
     Binary Code & Binary pattern of length $N$ from $N$ neurons (e.g. $0010$,
@@ -951,7 +959,122 @@ SNNs. There is little work involving on multi-modal SNNs, and prior work has
 focused on audio-video data~\cite{chevallier2005distributed,Rathi2018} (e.g.,
 for emotion detection~\cite{mansouri2019speech}). In contrast, we develop a
 multi-modal SNN for visual and tactile event data; note that the latter is in an
-``active'' sense with different characteristics for audio. 
+``active'' sense with different characteristics for audio.
+
+\chapter{Robot and Sensors Setup\label{cha:exp_setup}}
+
+In this section, we describe the robot hardware setup used across our
+experiments (Fig. \ref{fig:robotsetup}). We used a 7-DoF Franka Emika Panda arm
+with a Robotiq 2F-140 gripper and collected data from four primary sensors
+types: NeuTouch, Prophesee Onboard, RGB cameras, and the Optitrack motion
+capture system. The latter two are non-event sensors and their data streams were
+not used in our visual-tactile perception system.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.86\textwidth]{images/robotsetup/robot_setup_wsensors.pdf}
+  \caption{Robot Experiment Setup. (\textbf{Left}) Close-up of the Franka Emika
+    Panda arm and sensors; a NeuTouch sensor was attached on each Robotiq
+    gripper finger. The Prophesee event and Realsense cameras were mounted on
+    the arm and pointed towards the center of the gripper's grasp area. Our
+    prototype ACES decoder was mounted on top of the arm's control panel.
+    (\textbf{Right}) A view of the object classification experiment showing
+    three OptiTrack cameras (11 were used, and out of scene), the RGB scene
+    camera, and the object (soy milk carton) to be grasped and lifted.}
+\label{fig:robotsetup}
+\end{figure}
+
+\section{NeuTouch Tactile Sensor}
+We use the novel NeuTouch sensor, pictured in~\autoref{img:neutouch}. The
+NeuTouch sensor resembles a human fingertip, comprising of ``skin'' and
+``bone''. Tactile sensing is achieved via a layer of electrodes with 39 taxels
+and a graphene-based piezoresistive thin film. The graphene-based pressure
+transducer forms an effective tactile sensor, because its high Young's modulus
+helps to reduce the transducer's hysteresis and response time.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.86\columnwidth]{images/spktac}
+\caption{(a) NeuTouch compared to a human finger. (b) Spatial distribution of
+  the 39 taxels on NeuTouch. (c) Cross-sectional view of NeuTouch and
+  constituent components. NeuTouch performs tactile sensing using an electrode
+  layer with 39 taxels and a graphene-based piezoresistive thin film that is
+  embedded beneath the protective Ecoflex ``skin''.}
+\label{img:neutouch}
+\end{figure}
+
+We mounted two NeuTouch sensors to the Robotiq 2F-140 gripper and the ACES
+decoder on the Panda arm (Fig. \ref{fig:robotsetup}, left). To ensure consistent
+data, we performed a sensor warm-up before each data collection session and
+obtained baseline results to check for sensor drift. Specifically, we repeated
+100 cycles of: closing the gripper onto a flat stiff object (the `9 hole peg
+test' from the YCB dataset~\cite{ycb2015}) for 3 seconds, opening the gripper,
+and pausing for 2 seconds. We then collected a set of benchmark data, i.e., 20
+repetitions of closing the gripper onto the same `9 hole peg test' for 3
+seconds. Throughout our experiments, we periodically tested for sensor drift by
+repeating the closing test on the `9 hole peg test' and then examining the
+sensor data; no significant drift was found throughout our experiments.
+
+\section{Prophesee Event Camera}
+Event-based vision data was captured using the Prophesee
+Onboard\footnote{Details available at \url{https://www.prophesee.ai}.}. Similar
+to the tactile sensor, each camera pixel fires asynchronously and a positive
+(negative) spike is obtained when there is an increase (decrease) in luminosity.
+The Onboard was mounted on the arm and pointed towards the gripper to obtain
+information about the object of interest (Fig. \ref{fig:robotsetup}). Although
+the camera has a maximum resolution of 640 x 480, we captured spikes from a
+cropped 200 x 250 rectangular window to minimize noise from irrelevant regions.
+The event camera bias parameters were tuned following recommended
+guidelines\footnote{\url{https://support.prophesee.ai/portal/kb/articles/bias-tuning}}
+and we use the same parameters throughout all experiments.
+
+During preliminary experiments, we found the Onboard to be sensitive to high
+frequency ($\geq 100$Hz) luminosity changes; in other words, flickering light
+bulbs triggered undesirable spikes. To counter this effect, we used six Philips
+12W LED White light bulbs mounted around the experiment setup to provide
+consistent non-flickering illumination.
+
+\section{RGB Cameras}
+We used two Intel RealSense D435s to provide additional non-event image
+data\footnote{The infrared emitters were disabled as they increased noise for
+  the event camera and hence, no depth data was recorded.}. The first camera was
+mounted on the end-effector with the camera pointed towards the gripper
+(providing a view of the grasped object), and the second camera was placed to
+provide a view of the scene. The RGB images were used for visualization and
+validation purposes, but not as input to our models; future work may look into
+the integration of these standard sensors to provide even better model
+performance.
+
+\section{OptiTrack}
+The OptiTrack motion capture system was used to collect object movement data for
+the slip detection experiment. We attached 6 reflective markers on the rigid
+parts of the end-effector and 14 markers on the object of interest. Eleven
+OptiTrack Prime 13 cameras were placed strategically around the experimental
+area to minimize tracking error (Fig. \ref{fig:robotsetup}, right); each marker
+was visible to most if not all cameras at any instance, which resulted in
+continuous and reliable tracking. We used Motive Body v1.10.0 for marker
+tracking and manually annotated the detected markers.
+
+From initial tests, we found the OptiTrack to give reliable position estimates
+with error $\leq 1$mm at 120Hz.
+
+In addition to the above sensors, we also collected proprioceptive data for the
+Panda arm and Robotiq gripper; these are not currently used in our models but
+can be included in future work.
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.90\textwidth]{images/robotsetup/RobotMotion_Exp1.pdf}
+\caption{Data collection procedure for the container \& weight classification
+  task. The robot end-effector starts at 10 cm above the grasp point. It then
+  \emph{approaches} the coffee can, stopping at the 2-second mark. The gripper
+  then starts to close, \emph{grasping} it at around the 4-second mark,
+  resulting in tactile spikes. At the 6-second mark, the robot \emph{lifts} it
+  by 5cm above the table. The robot then holds it in the same position till the
+  8.5-second mark. For container and weight classification, we only use data
+  starting from the 2-second mark.}
+\label{fig:robot_motion}
+\end{figure*}
 
 \chapter{Visual-Tactile Spiking Neural Network (VT-SNN)\label{cha:vtsnn}}
 
@@ -961,9 +1084,13 @@ extended to incorporate other event sensors.
 
 \section{Model Input}
 
-It is helpful to first describe the different inputs to the model, for each of
-the modalities. The tactile sensor has 39 taxels, with a positive and negative
-polarity channel per taxel. With 2 fingers, that gives an input size of 156.
+We collect sensor inputs from two sensors: The NeuTouch sensor, and the
+Prophesee event camera. Both of these sensors are event-based: they emit binary
+numbers.
+
+The NeuTouch tactile sensor setup we use has 39 taxels, with a positive and
+negative polarity channel per taxel (pictured at~\autoref{img:neutouch}).
+With 2 fingers, that gives an input size of 156.
 
 For the vision modality, we use a cropped window of resolution $200 \times 250$
 from the Prophesee event camera. The event-based video data also has 2 channels:
@@ -1064,105 +1191,6 @@ regularization term led to the best results:
 
 where $\theta$ comprise the network weights. For all our SNN models, we
 optimized $\mathcal{\hat{L}}$.
-
-\chapter{Robot and Sensors Setup\label{cha:exp_setup}}
-
-In this section, we describe the robot hardware setup used across our
-experiments (Fig. \ref{fig:robotsetup}). We used a 7-DoF Franka Emika Panda arm
-with a Robotiq 2F-140 gripper and collected data from four primary sensors
-types: NeuTouch, Prophesee Onboard, RGB cameras, and the Optitrack motion
-capture system. The latter two are non-event sensors and their data streams were
-not used in VT-SNN.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.86\textwidth]{images/robotsetup/robot_setup_wsensors.pdf}
-  \caption{Robot Experiment Setup. (\textbf{Left}) Close-up of the Franka Emika
-    Panda arm and sensors; a NeuTouch sensor was attached on each Robotiq
-    gripper finger. The Prophesee event and Realsense cameras were mounted on
-    the arm and pointed towards the center of the gripper's grasp area. Our
-    prototype ACES decoder was mounted on top of the arm's control panel.
-    (\textbf{Right}) A view of the object classification experiment showing
-    three OptiTrack cameras (11 were used, and out of scene), the RGB scene
-    camera, and the object (soy milk carton) to be grasped and lifted.}
-\label{fig:robotsetup}
-\end{figure}
-
-\section{NeuTouch Tactile Sensor}
-We mounted two NeuTouch sensors to the Robotiq 2F-140 gripper and the ACES
-decoder on the Panda arm (Fig. \ref{fig:robotsetup}, left). To ensure consistent
-data, we performed a sensor warm-up before each data collection session and
-obtained baseline results to check for sensor drift. Specifically, we repeated
-100 cycles of: closing the gripper onto a flat stiff object (the `9 hole peg
-test' from the YCB dataset~\cite{ycb2015}) for 3 seconds, opening the gripper,
-and pausing for 2 seconds. We then collected a set of benchmark data, i.e., 20
-repetitions of closing the gripper onto the same `9 hole peg test' for 3
-seconds. Throughout our experiments, we periodically tested for sensor drift by
-repeating the closing test on the `9 hole peg test' and then examining the
-sensor data; no significant drift was found throughout our experiments.
-
-\section{Prophesee Event Camera}
-Event-based vision data was captured using the Prophesee
-Onboard\footnote{Details available at \url{https://www.prophesee.ai}.}. Similar
-to the tactile sensor, each camera pixel fires asynchronously and a positive
-(negative) spike is obtained when there is an increase (decrease) in luminosity.
-The Onboard was mounted on the arm and pointed towards the gripper to obtain
-information about the object of interest (Fig. \ref{fig:robotsetup}). Although
-the camera has a maximum resolution of 640 x 480, we captured spikes from a
-cropped 200 x 250 rectangular window to minimize noise from irrelevant regions.
-The event camera bias parameters were tuned following recommended
-guidelines\footnote{\url{https://support.prophesee.ai/portal/kb/articles/bias-tuning}}
-and we use the same parameters throughout all experiments.
-
-During preliminary experiments, we found the Onboard to be sensitive to high
-frequency ($\geq 100$Hz) luminosity changes; in other words, flickering light
-bulbs triggered undesirable spikes. To counter this effect, we used six Philips
-12W LED White light bulbs mounted around the experiment setup to provide
-consistent non-flickering illumination.
-
-\section{RGB Cameras}
-We used two Intel RealSense D435s to provide additional non-event image
-data\footnote{The infrared emitters were disabled as they increased noise for
-  the event camera and hence, no depth data was recorded.}. The first camera was
-mounted on the end-effector with the camera pointed towards the gripper
-(providing a view of the grasped object), and the second camera was placed to
-provide a view of the scene. The RGB images were used for visualization and
-validation purposes, but not as input to our models; future work may look into
-the integration of these standard sensors to provide even better model
-performance.
-
-\section{OptiTrack}
-The OptiTrack motion capture system was used to collect object movement data for
-the slip detection experiment. We attached 6 reflective markers on the rigid
-parts of the end-effector and 14 markers on the object of interest. Eleven
-OptiTrack Prime 13 cameras were placed strategically around the experimental
-area to minimize tracking error (Fig. \ref{fig:robotsetup}, right); each marker
-was visible to most if not all cameras at any instance, which resulted in
-continuous and reliable tracking. We used Motive Body v1.10.0 for marker
-tracking and manually annotated the detected markers.
-
-From initial tests, we found the OptiTrack to give reliable position estimates
-with error $\leq 1$mm at 120Hz.
-
-\section{Further Details}
-In addition to the above sensors, we also collected proprioceptive data for the
-Panda arm and Robotiq gripper; these are not currently used in our models but
-can be included in future work.
-
-\begin{figure*}
-\centering
-\includegraphics[width=0.90\textwidth]{images/robotsetup/RobotMotion_Exp1.pdf}
-\caption{Data collection procedure for the container \& weight classification
-  task. The robot end-effector starts at 10 cm above the grasp point. It then
-  \emph{approaches} the coffee can, stopping at the 2-second mark. The gripper
-  then starts to close, \emph{grasping} it at around the 4-second mark,
-  resulting in tactile spikes. At the 6-second mark, the robot \emph{lifts} it
-  by 5cm above the table. The robot then holds it in the same position till the
-  8.5-second mark. For container and weight classification, we only use data
-  starting from the 2-second mark.}
-\label{fig:robot_motion}
-\end{figure*}
-
 
 \chapter{Experimental Results\label{cha:exp_results}}
 
