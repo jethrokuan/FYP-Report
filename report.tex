@@ -28,7 +28,7 @@ sorting=none]{biblatex}
 \deliverables{
   \item Report: 1 Volume}
 
-\acknowledgement{I would like to thank Prof. Harold Soh for his tireless
+\acknowledgement{I would like to thank Prof.\ Harold Soh for his tireless
   guidance, and my peers who have given me feedback over the course of the
   project. This work was partially supported by the Science and Engineering
   Research Council, Agency of Science, Technology and Research, Singapore,
@@ -36,7 +36,6 @@ sorting=none]{biblatex}
 \maketitle
 
 \begin{abstract}
-  \DRAFT
   In this work, we contribute an event-driven visual-tactile perception system,
   built on spiking neural networks. Our perception system is trained, and tested
   end-to-end on novel multi-modal event-based data for two sensor modalities:
@@ -70,15 +69,17 @@ the carton, and are also able to infer from grasping the object, the amount of
 soy-milk the carton contains. These actions (and inferences) are performed
 robustly using a power-efficient neural substrate --- compared to popular deep
 learning approaches for using multiple sensor modalities in artificial systems,
-human brains require far less energy~\cite{li2016energyefficiency}.
+human brains require far less energy~\cite{li2016energyefficiency}, by
+communicating with sparse, discrete spikes.
 
 In this work, we take crucial steps towards efficient visual-tactile perception
 for robotic systems. We take full advantage of this sensor data using spiking
 neural networks. These neural networks use neuronal units that mimic the
 biological neuron, and possess desirable characteristics such as low latencies,
 and the ability to handle the event-based data at high temporal resolution.
-Traditional neural networks deployed on the currently commonplace hardware like
-GPUs face the Von Neumann bottleneck, and have fundamental limitations.
+Traditional neural networks deployed on currently commonplace hardware like GPUs
+face the Von Neumann bottleneck --- the throughput of the computer system is
+limited by the memory model.
 
 We gain inspiration from biological systems, which are \emph{asynchronous} and
 \emph{event-driven}. Consider using a video camera to capture the flight of a
@@ -99,7 +100,7 @@ fingertip sensor. Compared to existing commercially-available tactile sensors,
 NeuTouch's neuromorphic design enables scaling to larger number of taxels while
 retaining low latencies.
 
-Next, we investigate multi-modal (visual-tactile) learning using the Natasha
+Next, we investigate multi-modal (visual-tactile) learning using the NeuTouch
 and the Prophesee event-based camera. Specifically, we develop a
 \emph{visual-tactile spiking neural network} (VT-SNN) that incorporates both
 sensory modalities for supervised-learning tasks. Different from conventional
@@ -141,7 +142,7 @@ robotics tasks: container classification (\autoref{sec:container_class}), and
 slippage detection (\autoref{sec:slippage}). We discuss our experimental
 results, and demonstrate that spiking neural networks achieve competitive (and
 sometimes superior) performance over deep learning methods, and in addition
-having the unique property of early classification(\autoref{cha:exp_results}).
+having the unique property of early classification (\autoref{cha:exp_results}).
 We run the trained models on the Intel Loihi in~\autoref{cha:neuromorphic} to
 quantify the gains in power-efficiency and inference speeds. Finally, we
 conclude our work (\autoref{cha:conclusion}), and provide future research
@@ -150,7 +151,7 @@ directions.
 In the appendix, we include additional work, evaluating the feasibility of
 spiking neural networks as agents in a reinforcement learning
 setting~\autoref{cha:snnrl}. This research direction was explored in the first
-half of the thesis, but later abandoned.
+semester, but later abandoned.
 
 \section{Individual Contributions}
 The event-driven visual-tactile perception system is a joint work between our
@@ -219,16 +220,14 @@ only when their individual membrane potentials crosses its firing threshold.
 \begin{table}
   \centering
   \small
-  \begin{tabular}{ l|ccc }
-    \hline
-    \hline
+  \begin{tabular}{ l ccc }
+    \toprule
     \textbf{Name} & \textbf{Input} & \textbf{Output} & \textbf{Examples} \\
-    \hline
+    \midrule
     (1) Perceptrons & Digital & Digital & Hopfield Networks, Boltzmann Machines \\
     (2) Non-linear Units & Digital/Analog & Digital/Analog & Feed-forward \& Recurrent ANNs \\
     (3) Spiking Neurons & Analog & Analog & Feed-forward SNNs \\
-    \hline
-    \hline
+    \bottomrule
   \end{tabular}
   \normalsize
   \caption{\label{tab:nn_generations} The three generations of neural networks. }
@@ -295,10 +294,9 @@ advantage of these various coding schemes.
   \centering
   \small
   \begin{tabular}{ll}
-    \hline
-    \hline
+    \toprule
     \textbf{Coding Scheme} & \textbf{Encoding of Information} \\
-    \hline
+    \midrule
     Rate Coding & Firing rate of neurons \\
     Count Code & Count of number of neurons that spike during in time window \\
     Binary Code & Binary pattern of length $N$ from $N$ neurons (e.g. $0010$,
@@ -307,8 +305,7 @@ advantage of these various coding schemes.
                     train \\
     Rank Code & Order in which neurons fire \\
     Synchrony Code & Patterns from a population of neurons \\
-    \hline
-    \hline
+    \bottomrule
   \end{tabular}
   \normalsize
   \caption{Coding Schemes in Spiking Neural Networks}
@@ -326,9 +323,10 @@ The analog communication modeled in spiking neurons allow for naturally parallel
 and high-speed computation. The promise of real-time performance is a key
 motivator behind the development of neuromorphic hardware. Typical hardware such
 as the everyday computer uses the von Neumann architecture, which separates
-memory and processing, which has severe implications on performance.
-Neuromorphic hardware collocates memory and processing, overcoming the von
-Neumann bottleneck~\cite{Backus_1978}.
+memory and processing. This model of operation has severe implications on the
+throughput of the computer system, and is commonly known as the von Neumann
+bottleneck~\cite{Backus_1978}. Neuromorphic hardware collocates memory and
+processing, overcoming the von Neumann bottleneck.
 
 \subsubsection{Power Efficiency}
 
@@ -420,15 +418,13 @@ in~\autoref{fig:bio_neuron}.
   \begin{subfigure}{.5\textwidth}
     \centering
     \begin{tabular}{ll}
-      \hline
-      \hline
+      \toprule
       \textbf{Biological Neuron} & \textbf{Perceptron} \\
-      \hline
+      \midrule
       Dendrites & Inputs \\
       Cell Body & Processing input: $f(\sum \textbf{w} \cdot \textbf{i})$ \\
       Axon (Terminals) & Output \\
-      \hline
-      \hline
+      \bottomrule
     \end{tabular}
   \end{subfigure}
   \caption{The biological neuron~\cite{tds_artif_biolog_neural_networ}, in contrast with a perceptron.}
@@ -578,7 +574,7 @@ To obtain the full benefits of spiking neural networks, they need to be deployed
 on specialized neuromorphic hardware. In a traditional Von Neumann architecture,
 the logic core operates on data fetched sequentially from memory. In
 neuromorphic chips, both computation and memory are instead distributed across
-computational units that are connected via synapses. Henc, the neuronal
+computational units that are connected via synapses. Hence, the neuronal
 architecture and parameters play a key role in information representation and
 define the computations that are performed.
 
@@ -661,10 +657,9 @@ difficulties, according to the following classification:
 \begin{table}[ht]
   \centering
   \begin{tabular}{lll}
-    \hline
-    \hline
+    \toprule
     & \textbf{Non-gradient based} & \textbf{Gradient-based} \\
-    \hline
+    \midrule
     \textbf{Offline-only} & \begin{tabular}{@{}l@{}}
                         \small
                         Evolutionary Algorithms
@@ -681,8 +676,7 @@ difficulties, according to the following classification:
                                         \small
                                         Surrogate Gradients + Random BP
                                       \end{tabular}\\
-    \hline
-    \hline
+    \bottomrule
   \end{tabular}
   \caption{A taxonomy of learning algorithms for spiking neuron models.}
   \label{tab:snm_train_taxonomy}
@@ -819,12 +813,12 @@ One can relax the requirements of gradient
 backpropagation~\cite{neftci19_surrog_gradien_learn_spikin_neural_networ}, to
 achieve local learning rules. Random backpropagation algorithms sidestep the
 problem of non-locality, by replacing the weights in the backpropagation rule
-with random weights. On some benchmark tasks, this lead to little loss in
-performance. SuperSpike uses random feedback weights, and surrogate gradients to
-derive a biologically-plausible, online learning rule suitable for hardware
-implementations~\cite{zenke17_super}. DECOLLE also uses surrogate gradients in a
-linear IF neuron model, using a local and rate-based cost function to derive
-local update rules from partial first
+with random weights. On some benchmark tasks, it was empirically shown to result
+in little loss in performance. SuperSpike uses random feedback weights, and
+surrogate gradients to derive a biologically-plausible, online learning rule
+suitable for hardware implementations~\cite{zenke17_super}. DECOLLE also uses
+surrogate gradients in a linear IF neuron model, using a local and rate-based
+cost function to derive local update rules from partial first
 principles~\cite{kaiser18_synap_plast_dynam_deep_contin}.
 
 Equilibrium Propagation was recently proposed to solve the neurobiological
@@ -864,7 +858,7 @@ dataset~\cite{orchard15_conver_static_image_datas_to}, or the
 DvsGesture~\cite{dvsgesture} dataset. The spike trains in these dataset are much
 less sparse than the naturally occurring spikes in biological neurons. In
 addition, both SNNs and ANNs demonstrate strong experimental results on these
-datasets, which may suggest that they are too easy. We would like to see more
+datasets, which suggest that they may be too easy. We would like to see more
 diverse and challenging publicly-available spiking datasets, and strong and
 reliable benchmarking for the various SNN architectures and learning methods.
 
@@ -1019,8 +1013,8 @@ to the tactile sensor, each camera pixel fires asynchronously and a positive
 The Onboard was mounted on the arm and pointed towards the gripper to obtain
 information about the object of interest (Fig. \ref{fig:robotsetup}). Although
 the camera has a maximum resolution of 640 x 480, we captured spikes from a
-cropped 200 x 250 rectangular window to minimize noise from irrelevant regions.
-The event camera bias parameters were tuned following recommended
+cropped $200 \times 250$ rectangular window to minimize noise from irrelevant
+regions. The event camera bias parameters were tuned following recommended
 guidelines\footnote{\url{https://support.prophesee.ai/portal/kb/articles/bias-tuning}}
 and we use the same parameters throughout all experiments.
 
@@ -1094,15 +1088,20 @@ dimensions $200 \times 250 \times 2$.
 \begin{figure}
   \centering
   \includegraphics[width=0.45\columnwidth]{images/VT-SNN_v3.pdf}
-  \caption{The Visual-Tactile Spiking Neural Network (VT-SNN) which comprises two ``spiking encoders'' for each modality. The spikes from these two encoders are combined via a fixed-width combination layer and propagated to a task SNN that outputs a task-specific output spike-train. VT-SNN employs the Spike Response Model (SRM) neuron that integrates incoming spikes and spikes when a threshold is breached.}
+  \caption{The Visual-Tactile Spiking Neural Network (VT-SNN) which comprises
+    two ``spiking encoders'' for each modality. The spikes from these two
+    encoders are combined via a fixed-width combination layer and propagated to
+    a task SNN that outputs a task-specific output spike-train. VT-SNN employs
+    the Spike Response Model (SRM) neuron that integrates incoming spikes and
+    spikes when a threshold is breached.}
   \label{img:VT_SNN_arch_diag}
 \end{figure}
 
-From a bird's-eye perspective, the VT-SNN employs a simple architecture (~\autoref{img:VT_SNN_arch_diag}) that
-first encodes the two modalities into individual latent (spiking)
-representations, that are combined and further processed through additional
-layers to yield a task-specific output. In the following, we detail the network
-architectures used in our experiments.
+From a bird's-eye perspective, the VT-SNN employs a simple architecture
+(~\autoref{img:VT_SNN_arch_diag}) that first encodes the two modalities into
+individual latent (spiking) representations, that are combined and further
+processed through additional layers to yield a task-specific output. In the
+following, we detail the network architectures used in our experiments.
 
 For our experiments where our model is only provided with tactile data, the
 Tactile SNN employs a fully-connected (FC) network consisting of 2 dense spiking
@@ -1268,16 +1267,13 @@ to minimize the cross-entropy loss using RMSProp. All models were trained for
   \centering
   \caption{Container \& Weight Classification: Average Accuracy with Standard Deviation in Brackets}
   \label{tbl:classacc325}
-  \begin{tabular}{l|ccc}
-    \hline
-    \hline
+  \begin{tabular}{lccc}
+    \toprule
     \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
-    \hline
+    \midrule
     SNN  & {0.700} (0.045) & 0.579 (0.064)  & 0.811 (0.048)\\
-    \hline
     ANN (MLP-GRU) & 0.497 (0.059) & 0.429 (0.054) & 0.437 (0.062)\\
-    \hline
-    \hline
+    \bottomrule
   \end{tabular}
 \end{table}
 
@@ -1370,23 +1366,23 @@ may look into event-based ``attention'' models that are able to actively choose
 \centering
 \caption{Rotational Slip Detection: Average Accuracy with Standard Deviation in Brackets}
 \label{tbl:sdacc}
-\begin{tabular}{l|ccc}
- \hline
- \hline
+\begin{tabular}{lccc}
+ \toprule
   \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
-  \hline
+ \midrule
  SNN & 0.837 (0.044)  & 1.0 (0.0) & 1.0 (0.0) \\
- \hline
  ANN (MLP-GRU) & 0.860 (0.069) & 1.0 (0.0)  & 1.0 (0.0) \\
- \hline
- \hline
+ \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}
-\centering
-\includegraphics[width=0.55\columnwidth]{images/robotsetup/slip_graf.png}
-\caption{Top: Object and the fixed grasp point. Middle: Center of mass aligns with grasp point, and no rotational slip happens upon lifting the object. Bottom: Center of mass is shifted away from grasp point, rotational slip happens upon lift. }
+  \centering
+  \includegraphics[width=0.55\columnwidth]{images/robotsetup/slip_graf.png}
+  \caption{Top: Object and the fixed grasp point. Middle: Center of mass aligns
+    with grasp point, and no rotational slip happens upon lifting the object.
+    Bottom: Center of mass is shifted away from grasp point, rotational slip
+    happens upon lift. }
 \label{img:slips}
 \end{figure}
 
@@ -1505,7 +1501,7 @@ promise of power efficiency and real-time performance. In this chapter, we
 attempt to quantify these gains by evaluating VT-SNN on the Loihi chip against a
 GPU. This portion of work was completed after the paper submission.
 
-\section{The Intel Loihi\cite{davies2018loihi}}
+\section{The Intel Loihi}
 
 Loihi is designed for running spiking neural networks. Loihi uses a fixed-size
 discrete time-step model, carrying out computation through the interacting
@@ -1523,7 +1519,7 @@ to 0.
 \section{The VT-SNN Loihi Model}
 
 SLAYER~\cite{NIPS2018_7415} PyTorch library supports the Loihi neuron model. To
-learn a model that can run on the Loihi, we replace the default Spike Response
+learn a model that can run on the Loihi, we replace the default Spike-response
 Model with the Loihi neuron model, and run the same training procedure as
 described in~\autoref{sec:model-training}. We obtain a SNN architecture that is
 identical to the VT-SNN model, with only the underlying neuron model being
@@ -1542,7 +1538,7 @@ Because the SLAYER models can only be run on a GPU or on neuromorphic hardware,
 we use only these two devices in our comparison. In the interest of time, we
 evaluate Tactile SNN model for the task of container classification.
 
-we adapt the approach
+We adapt the approach
 of~\citeauthor{blouw18_bench_keywor_spott_effic_neurom_hardw}, who quantified
 the power consumption and inference time across various hardware devices on the
 task of keyword spotting~\cite{blouw18_bench_keywor_spott_effic_neurom_hardw}.
@@ -1580,18 +1576,16 @@ timestep in all phases for our comparison.
 
 \begin{table}
   \centering
-  \begin{tabular}{c|c|c}
-    \hline
-    \hline
+  \begin{tabular}{ccc}
+    \toprule
     & \textbf{GPU} & \textbf{Loihi} \\
-    \hline
+    \midrule
     \textbf{Idle Power Consumption (W)} & 5.123 & 0.0295 \\
     \textbf{Running Power Consumption (W)} & 56.329 & 0.104 \\
     \textbf{Dynamic Power Consumption (W)} & 51.206 & 0.0745 \\
     \textbf{Inferences Per Second} & 243.76 & 90.10 (296.46*) \\
     \textbf{Energy Cost per Inference (J)} & 0.210 & 0.000826 (0.000272*) \\
-    \hline
-    \hline
+    \bottomrule
   \end{tabular}
   \caption{Power consumption and inference speeds for the Loihi and the GPU on
     the task of container classification. The Loihi uses significantly less
@@ -1656,31 +1650,26 @@ similarly-structured ANNs, and are capable of early classification based on
 emitted spikes. These promising results suggest that the event-driven paradigm
 is a promising line of enquiry; we believe event-based sensing and learning will
 form essential parts of next-generation real-time autonomous robots that are
-power-efficient. We hope that the results in this paper and our datasets will
-encourage research in this area.
+power-efficient. We have seen that each modality provides valuable information
+in both robotic tasks. This suggests a promising line of work in attention
+models for multi-modal fusion across time, to allow the event-based perception
+system to fuse modalities more effectively.
 
-\section{Future work\label{sec:future_work}}
-
-First, we have seen that each modality provides valuable information in both
-robotic tasks. This suggests a promising line of work in attention models for
-multi-modal fusion across time, to allow the event-based perception system to
-fuse modalities more effectively.
-
-Second, in our experimental setup we binned the sensor data into large discrete
+In our experimental setup we binned the sensor data into large discrete
 time-steps, resulting in loss of temporal information. Neuromorphic hardware
 should be able to handle the event data despite the high temporal resolution,
-and experiments should be run to confirm this.
+and in future we hope to run experiments to confirm this.
 
 \printbibliography
 \appendix
 
-\chapter{Reinforcement learning in Spiking Neural Networks\label{cha:snnrl}}
+\chapter{Reinforcement Learning in Spiking Neural Networks\label{cha:snnrl}}
 
 Recent advancements in training of spiking neural networks, in particular
-surrogate gradient methods, have made many of the gradient-based Reinforcement
-Learning methods applicable to spiking neural networks. It is our belief that
-reinforcement learning is especially attractive for spiking neural networks, for
-the following reasons:
+surrogate gradient methods (see~\autoref{sec:surrogate-gradients}), have opened
+up gradient-based Reinforcement Learning methods to spiking neural networks. It
+is our belief that reinforcement learning is especially attractive for spiking
+neural networks, for the following reasons:
 
 \begin{enumerate}
   \item Many reinforcement learning environments are temporal in nature: the
@@ -1689,7 +1678,7 @@ the following reasons:
     operating model, and are well suited as agents.
   \item Reinforcement Learning is a commonly used paradigm for robotic
     applications, and neuromorphic hardware can be demonstrated to use
-    significantly less power(~\autoref{cha:neuromorphic}).
+    significantly less power (see ~\autoref{cha:neuromorphic}).
 \end{enumerate}
 
 In this chapter, we evaluate the feasibility of SNNs in simple Reinforcement
@@ -1786,9 +1775,10 @@ agents for 500 epochs.
 \section{Results}
 
 \begin{figure}
-  \centering
-  \includegraphics[width=0.55\columnwidth]{images/ep-ret-mean.png}
-  \caption{Mean episodic return of the two agents. The ANN agent is depicted in red, while the SNN agent is depicted in blue. The ANN agent solves the task quicker than the SNN.}
+  \centering \includegraphics[width=0.55\columnwidth]{images/ep-ret-mean.png}
+  \caption{Mean episodic return of the two agents. The ANN agent is depicted in
+    red, while the SNN agent is depicted in blue. The ANN agent solves the task
+    quicker than the SNN.}
   \label{fig:ep-ret-mean}
 \end{figure}
 
