@@ -308,8 +308,7 @@ advantage of these various coding schemes.
     \bottomrule
   \end{tabular}
   \normalsize
-  \caption{Coding Schemes in Spiking Neural Networks}
-  \label{tab:coding_schemes}
+  \caption{Coding schemes in Spiking Neural Networks\label{tab:coding_schemes}}
 \end{table}
 
 \subsection{Practical Benefits\label{sec:practical-benefits}}
@@ -427,8 +426,7 @@ in~\autoref{fig:bio_neuron}.
       \bottomrule
     \end{tabular}
   \end{subfigure}
-  \caption{The biological neuron~\cite{tds_artif_biolog_neural_networ}, in contrast with a perceptron.}
-  \label{fig:bio_neuron}
+  \caption{The biological neuron~\cite{tds_artif_biolog_neural_networ}, in contrast with a perceptron.\label{fig:bio_neuron}}
 \end{figure}
 
 In this section, we present a taxonomy of neuron models. These neuron models
@@ -458,8 +456,7 @@ to~\cite{izhikevich2004model}.
     ]]]
     ]
   \end{forest}
-  \caption{A taxonomy of popular spiking neuron models.}
-  \label{fig:snm_taxonomy}
+  \caption{A taxonomy of popular spiking neuron models.\label{fig:snm_taxonomy}}
 \end{figure}
 
 \subsection{McCulloch-Pitts}
@@ -533,7 +530,7 @@ A common form for the refractory kernel $\eta$ is:
 
 \begin{equation}
   \label{eq:srm_eta}
-  \eta(t) = - \eta_{0} \textrm{exp} \left(- \frac{t}{\tau}\right) \mathcal{H}(t)
+  \eta(t) = - \eta_{0} \exp \left(- \frac{t}{\tau}\right) \mathcal{H}(t)
 \end{equation}
 
 where $\eta_{0}$ is the amplitude of the relative refractorines, $\tau$ is a
@@ -678,11 +675,10 @@ difficulties, according to the following classification:
                                       \end{tabular}\\
     \bottomrule
   \end{tabular}
-  \caption{A taxonomy of learning algorithms for spiking neuron models.}
-  \label{tab:snm_train_taxonomy}
+  \caption{A taxonomy of learning algorithms for spiking neuron models.\label{tab:snm_train_taxonomy}}
 \end{table}
 
-\subsubsection{Local Learning Rules}
+\subsubsection{Local Learning Rules\label{sec:local-learning-rules}}
 
 Local learning rules are simple fixed rules, that tells a neuron how to update
 its weights for each training example. These rules often only use information
@@ -745,7 +741,7 @@ of candidate solutions are maintained. At each timestep, the parameters of these
 agents are tweaked, and the candidates is evaluated. In some variants of DE, a
 reproduction step involving crossing-over of weights between candidate solutions
 is also introduced. The agent that has the best performance is returned after
-some stopping criterion (e.g. time-step) is reached. Evolutionary algorithms
+some stopping criterion (e.g.\ time-step) is reached. Evolutionary algorithms
 tend to be computationally expensive, but parallelizable. For example, in DE the
 evaluation of candidates can be done in parallel. Hence, it requires offline
 training. DE has been successfully applied to achieve comparable results with
@@ -767,7 +763,7 @@ cross-entropy loss.
 One approach is converting trained ANN models into
 SNNs~\cite{rueckauer16_theor_tools_conver_analog_to,zambrano16_fast_effic_async_neural_comput}.
 One can achieve the same input-output mapping as a deep ANN with a converted
-SNN. Common ANN layers such as softmax, batch normalization and max-pooling
+SNN.\@ Common ANN layers such as softmax, batch normalization and max-pooling
 layers have their corresponding spiking counterparts. This method allows for
 using the full toolkit of deep-learning methods in training the ANNs prior to
 conversion. However, only a subset of ANN architectures can be converted into
@@ -954,7 +950,7 @@ multi-modal SNN for visual and tactile event data; note that the latter is in an
 \chapter{Robot and Sensors Setup\label{cha:exp_setup}}
 
 In this section, we describe the robot hardware setup used across our
-experiments (Fig. \ref{fig:robotsetup}). We used a 7-DoF Franka Emika Panda arm
+experiments (Fig.~\ref{fig:robotsetup}). We used a 7-DoF Franka Emika Panda arm
 with a Robotiq 2F-140 gripper and collected data from four primary sensors
 types: NeuTouch, Prophesee Onboard, RGB cameras, and the Optitrack motion
 capture system. The latter two are non-event sensors and their data streams were
@@ -970,8 +966,8 @@ not used in our visual-tactile perception system.
     prototype ACES decoder was mounted on top of the arm's control panel.
     (\textbf{Right}) A view of the object classification experiment showing
     three OptiTrack cameras (11 were used, and out of scene), the RGB scene
-    camera, and the object (soy milk carton) to be grasped and lifted.}
-\label{fig:robotsetup}
+    camera, and the object (soy milk carton) to be grasped and
+    lifted.\label{fig:robotsetup}}
 \end{figure}
 
 \section{NeuTouch Tactile Sensor}
@@ -989,12 +985,11 @@ helps to reduce the transducer's hysteresis and response time.
   the 39 taxels on NeuTouch. (c) Cross-sectional view of NeuTouch and
   constituent components. NeuTouch performs tactile sensing using an electrode
   layer with 39 taxels and a graphene-based piezoresistive thin film that is
-  embedded beneath the protective Ecoflex ``skin''.}
-\label{img:neutouch}
+  embedded beneath the protective Ecoflex ``skin''.\label{img:neutouch}}
 \end{figure}
 
 We mounted two NeuTouch sensors to the Robotiq 2F-140 gripper and the ACES
-decoder on the Panda arm (Fig. \ref{fig:robotsetup}, left). To ensure consistent
+decoder on the Panda arm (Fig.~\ref{fig:robotsetup}, left). To ensure consistent
 data, we performed a sensor warm-up before each data collection session and
 obtained baseline results to check for sensor drift. Specifically, we repeated
 100 cycles of: closing the gripper onto a flat stiff object (the `9 hole peg
@@ -1011,9 +1006,9 @@ Onboard\footnote{Details available at \url{https://www.prophesee.ai}.}. Similar
 to the tactile sensor, each camera pixel fires asynchronously and a positive
 (negative) spike is obtained when there is an increase (decrease) in luminosity.
 The Onboard was mounted on the arm and pointed towards the gripper to obtain
-information about the object of interest (Fig. \ref{fig:robotsetup}). Although
-the camera has a maximum resolution of 640 x 480, we captured spikes from a
-cropped $200 \times 250$ rectangular window to minimize noise from irrelevant
+information about the object of interest (Fig.~\ref{fig:robotsetup}). Although
+the camera has a maximum resolution of $640 \times 480$, we captured spikes from
+a cropped $200 \times 250$ rectangular window to minimize noise from irrelevant
 regions. The event camera bias parameters were tuned following recommended
 guidelines\footnote{\url{https://support.prophesee.ai/portal/kb/articles/bias-tuning}}
 and we use the same parameters throughout all experiments.
@@ -1040,7 +1035,7 @@ The OptiTrack motion capture system was used to collect object movement data for
 the slip detection experiment. We attached 6 reflective markers on the rigid
 parts of the end-effector and 14 markers on the object of interest. Eleven
 OptiTrack Prime 13 cameras were placed strategically around the experimental
-area to minimize tracking error (Fig. \ref{fig:robotsetup}, right); each marker
+area to minimize tracking error (Fig.~\ref{fig:robotsetup}, right); each marker
 was visible to most if not all cameras at any instance, which resulted in
 continuous and reliable tracking. We used Motive Body v1.10.0 for marker
 tracking and manually annotated the detected markers.
@@ -1062,8 +1057,7 @@ can be included in future work.
   resulting in tactile spikes. At the 6-second mark, the robot \emph{lifts} it
   by 5cm above the table. The robot then holds it in the same position till the
   8.5-second mark. For container and weight classification, we only use data
-  starting from the 2-second mark.}
-\label{fig:robot_motion}
+  starting from the 2-second mark.\label{fig:robot_motion}}
 \end{figure*}
 
 \chapter{Visual-Tactile Spiking Neural Network (VT-SNN)\label{cha:vtsnn}}
@@ -1093,8 +1087,7 @@ dimensions $200 \times 250 \times 2$.
     encoders are combined via a fixed-width combination layer and propagated to
     a task SNN that outputs a task-specific output spike-train. VT-SNN employs
     the Spike Response Model (SRM) neuron that integrates incoming spikes and
-    spikes when a threshold is breached.}
-  \label{img:VT_SNN_arch_diag}
+    spikes when a threshold is breached.\label{img:VT_SNN_arch_diag}}
 \end{figure}
 
 From a bird's-eye perspective, the VT-SNN employs a simple architecture
@@ -1109,7 +1102,7 @@ layers.
 
 The Vision SNN uses 3 layers; the first layer is a pooling layer with kernel
 size and stride length of 4. The pooled spike train is passed as input to a
-2-layer FC architecture identical to the Tactile SNN. The tactile and vision
+2-layer FC architecture identical to the Tactile SNN.\@ The tactile and vision
 encoders have output sizes of 50 and 10 respectively.
 
 For experiments where both modalities are available to the model, we used a
@@ -1160,7 +1153,7 @@ associated with a specific class and the neuron that generates the most spikes
 represents the winning class. We trained the model by minimizing the loss:
 
 \begin{align}
-    \mathcal{L} = \frac{1}{2} \sum_{t=0}^T \left( \sum \mathbf{s}^o(t) - \sum \mathbf{\Tilde{s}}^o(t) \right)^2
+  \mathcal{L} = \frac{1}{2} \sum_{t=0}^T \left( \sum \mathbf{s}^o(t) - \sum \mathbf{\Tilde{s}}^o(t) \right)^2
 \end{align}
 
 which captures the difference between the observed output spike count
@@ -1197,8 +1190,8 @@ optimized $\mathcal{\hat{L}}$.
 \caption{(\textbf{Left}) Containers used for container classification task:
   coffee can, plastic soda bottle, soy milk carton, and metal tuna can.
   (\textbf{Right}) The objects in our expanded dataset ($36$ object classes with
-  various visual and tactile profiles) collected using the same protocol.}
-\label{fig:expobjects}
+  various visual and tactile profiles) collected using the same
+  protocol.\label{fig:expobjects}}
 \end{figure}
 
 \section{Container \& Weight Classification\label{sec:container_class}}
@@ -1219,7 +1212,7 @@ setup.
 
 \noindent\textbf{Objects.} We used four different containers: an aluminium
 coffee can, a plastic Pepsi bottle, a cardboard soy milk carton and a metal tuna
-can (Fig. \ref{fig:expobjects}). These objects have different degrees of
+can (Fig.~\ref{fig:expobjects}). These objects have different degrees of
 hardness; the soy milk container was the softest, and the tuna can was the most
 rigid. Because of size differences, each container was filled with differing
 amounts of liquid; the four objects contained a maximum of 250g, 400g, 300g, and
@@ -1241,8 +1234,8 @@ gripper then lifted the object by 5cm (2 seconds) and held it for 0.5 seconds.
 
 \noindent\textbf{Data Pre-processing.}
 For both modalities, we selected data from the grasping, lifting and holding
-phases (corresponding to the 2.0s to 8.5s window in Figure
-\ref{fig:robot_motion}), and set a bin duration of 0.02s (325 bins) and a
+phases (corresponding to the 2.0s to 8.5s window in
+Figure~\ref{fig:robot_motion}), and set a bin duration of 0.02s (325 bins) and a
 binning threshold value $S_{\text{min}} = 2$. We used stratified K-folds to
 create 5 splits; each split contained 240 training and 60 test examples with
 equal class distribution. After processing, the tactile data has shape
@@ -1256,7 +1249,7 @@ We compared the SNNs against conventional deep learning, specifically
 Multi-layer Perceptrons (MLPs) with Gated Recurrent Units
 (GRUs)~\cite{cho2014learning}. We trained each model using (i) the tactile data
 only, (ii) the visual data only, and (iii) the combined visual-tactile data.
-Note that the SNN model on the combined data corresponds to the VT-SNN. When
+Note that the SNN model on the combined data corresponds to the VT-SNN.\@ When
 training on a single modality, we use Visual or Tactile SNN as appropriate. We
 implemented all the models using PyTorch. The SNNs were trained with SLAYER to
 minimize spike count differences~\cite{NIPS2018_7415} and the ANNs were trained
@@ -1265,8 +1258,8 @@ to minimize the cross-entropy loss using RMSProp. All models were trained for
 
 \begin{table}
   \centering
-  \caption{Container \& Weight Classification: Average Accuracy with Standard Deviation in Brackets}
-  \label{tbl:classacc325}
+  \caption{Container \& Weight Classification: Average Accuracy with Standard
+    Deviation in Brackets\label{tbl:classacc325}}
   \begin{tabular}{lccc}
     \toprule
     \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
@@ -1293,7 +1286,7 @@ and the water level was observable by Onboard on some trials, and (ii) the
 Onboard was able to see object deformations as the gripper closed, which
 revealed the ``fullness'' of the softer containers.
 
-Figure \ref{fig:spikeclass} gives an instructive example showing the advantage
+Figure~\ref{fig:spikeclass} gives an instructive example showing the advantage
 of fusing both modalities. It shows the output spikes from the different SNN
 models for a coffee can with 100\% weight. The models trained on tactile and
 vision data are uncertain of the container and the weight category respectively.
@@ -1318,8 +1311,7 @@ the size of our dataset.
   categories are arranged from 0\% to 100\% (bottom to top) for each container.
   The tactile model is unable to distinguish between a coffee can and a tuna can
   while the vision model is uncertain about the weight. The combined
-  visual-tactile model predicts the correct class with high certainty.}
-\label{fig:spikeclass}
+  visual-tactile model predicts the correct class with high certainty.\label{fig:spikeclass}}
 \end{figure}
 
 \begin{figure}
@@ -1331,13 +1323,12 @@ the size of our dataset.
     are obtained as the gripper is closing, and tactile events arise only upon
     contact with the object. Combining both vision and tactile event data via
     our VT-SNN results in significantly higher accuracy, compared to using each
-    modality separately. }
-\label{fig:classtime}
+    modality separately.\label{fig:classtime}}
 \end{figure}
 
 \noindent\textbf{Early Classification.} Instead of waiting for all the output
 spikes to accumulate, we can perform early classification based on the number of
-spikes seen up to time $t$. Fig. \ref{fig:classtime} shows the accuracies of the
+spikes seen up to time $t$. Fig.~\ref{fig:classtime} shows the accuracies of the
 different models over time. The combined visual-tactile model achieves the
 highest accuracies overall, but between $0.5-3.0$s, the vision model was already
 able to distinguish between certain objects. We posit this was due to small
@@ -1357,15 +1348,13 @@ may look into event-based ``attention'' models that are able to actively choose
   unstable grasp with rotational slip (bottom); the bottom object has additional
   mass transferred to the left leg (from the right leg) that causes it to rotate
   during lifting. Note that both objects had equal
-  mass.
-}
-\label{img:slips}
+  mass.\label{img:slips}}
 \end{figure}
 
 \begin{table}
 \centering
-\caption{Rotational Slip Detection: Average Accuracy with Standard Deviation in Brackets}
-\label{tbl:sdacc}
+\caption{Rotational Slip Detection: Average Accuracy with Standard Deviation in
+  Brackets\label{tbl:sdacc}}
 \begin{tabular}{lccc}
  \toprule
   \textbf{Model} & \textbf{Tactile} & \textbf{Vision} & \textbf{Combined} \\
@@ -1382,8 +1371,7 @@ may look into event-based ``attention'' models that are able to actively choose
   \caption{Top: Object and the fixed grasp point. Middle: Center of mass aligns
     with grasp point, and no rotational slip happens upon lifting the object.
     Bottom: Center of mass is shifted away from grasp point, rotational slip
-    happens upon lift. }
-\label{img:slips}
+    happens upon lift.\label{img:slips}}
 \end{figure}
 
 In this second experiment, we task our perception system to classify rotational
@@ -1404,7 +1392,7 @@ re-grasping to remedy the poor initial choice of grasp location.
 \subsection{Method and Procedure}
 
 \noindent\textbf{Objects.} Our test object was constructed using Lego Duplo
-blocks (Fig. \ref{img:slips}) with a hidden 10g mass in each leg. The
+blocks (Fig.~\ref{img:slips}) with a hidden 10g mass in each leg. The
 ``control'' object was designed to be balanced at the grasp point. To induce
 rotational slip, we modified the object by transferring the hidden mass from the
 right leg to the left. As such, the stable and unstable objects were visually
@@ -1418,7 +1406,7 @@ Controller~\cite{coleman2014reducing}. The robot was instructed to close upon
 the object, lift by 10cm off the table (in 0.75 seconds) and hold it for an
 additional 4.25 seconds. We tuned the gripper's grasping force to enable the
 object to be lifted, yet allow for rotational slip for the off-center object
-(Fig. \ref{img:slips}, right).
+(Fig.~\ref{img:slips}, right).
 
 \vspace{0.3em}
 \noindent\textbf{Data Preprocessing.} Instead of training our models across the
@@ -1460,7 +1448,6 @@ same direction as the rotational slip, potentially causing the tactile sensors
 to generate a less distinctive signature. If so, it would interesting to examine
 alternative skin materials that can mitigate this issue.
 
-
 \begin{figure}
 \centering
 \includegraphics[width=0.55\columnwidth]{images/analysis/slip_over_time.pdf}
@@ -1468,26 +1455,24 @@ alternative skin materials that can mitigate this issue.
   accuracy and shaded regions represent the standard deviations. Classification
   using tactile only data results in higher early accuracy, but vision-only
   classification is more accurate as sensory data is accumulated. Combining both
-  modalities results in higher accuracy, especially after 0.05s.}
-\label{fig:sliptime}
+  modalities results in higher accuracy, especially after 0.05s.\label{fig:sliptime}}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.55\columnwidth]{images/analysis/slip_class_output.pdf}
-\caption{Output spikes for the slip detection models trained with different modalities with correct prediction class in green. All models predict this sample correctly, but the tactile model spikes earlier compared to the other two models.}
-\label{fig:spikeslip}
+\caption{Output spikes for the slip detection models trained with different modalities with correct prediction class in green. All models predict this sample correctly, but the tactile model spikes earlier compared to the other two models.\label{fig:spikeslip}}
 \end{figure}
 
 \vspace{0.3em}
 \noindent\textbf{Early Slip Detection.} Similar to the previous analysis on
-early container classification, Fig. \ref{fig:sliptime} summarizes slip test
+early container classification, Fig.~\ref{fig:sliptime} summarizes slip test
 accuracy at different time points. The object starts being lifted at
 approximately 0.02s, and we see that by 0.1s, the multi-modal VT-SNN is able to
 classify slip perfectly. Again, we see vision and touch possess different
 accuracy profiles; tactile-only classification is more accurate early on
 (between $0.025-0.05$s), while vision-based classification is better after
-$\approx 0.6$s. In Fig. \ref{fig:spikeslip}, we see that the tactile model
+$\approx 0.6$s. In Fig.~\ref{fig:spikeslip}, we see that the tactile model
 spikes earlier than the other models. Fusing both modalities results in an
 accuracy profile similar to vision but shifted towards higher accuracies. Again,
 performance may be improved by encouraging the multi-modal SNN to weigh the
@@ -1495,11 +1480,11 @@ tactile-signals appropriately over time.
 
 \chapter{Gains on Neuromorphic Hardware\label{cha:neuromorphic}}
 
-In ~\autoref{sec:practical-benefits}, we discussed that one of the main
+In~\autoref{sec:practical-benefits}, we discussed that one of the main
 motivations of using event-based sensors, and spiking neural networks is the
 promise of power efficiency and real-time performance. In this chapter, we
 attempt to quantify these gains by evaluating VT-SNN on the Loihi chip against a
-GPU. This portion of work was completed after the paper submission.
+GPU.\@ This portion of work was completed after the paper submission.
 
 \section{The Intel Loihi}
 
@@ -1591,11 +1576,10 @@ timestep in all phases for our comparison.
     the task of container classification. The Loihi uses significantly less
     power. The inference speeds for Loihi are lower, but discounting
     communication time (in brackets), the inference speeds become comparable to
-    GPUs.}
-  \label{tab:bench}
+    GPUs.\label{tab:bench}}
 \end{table}
 
-The benchmark results are presented in ~\autoref{tab:bench}. The benchmarks show
+The benchmark results are presented in~\autoref{tab:bench}. The benchmarks show
 that the power consumption on the Loihi board is many orders of magnitude lower
 than that of the GPU.\@ In fact, the running power consumption of the Loihi is
 even lower than that of an idle GPU.\@ This is an encouraging find, verifying
@@ -1622,8 +1606,7 @@ INFO:DRV:      Processing timeseries.......Done 0.90ms
 \end{verbatim}
   \caption{Log of a typical run on Loihi. Much of the time is spent transferring
     the spiking data onto the board. If we consider just the execution and
-    processing time, the inference speed is slightly better than the GPU.}
-  \label{fig:loihi-run}
+    processing time, the inference speed is slightly better than the GPU.\label{fig:loihi-run}}
 \end{figure}
 
 \subsection{Conclusion}
@@ -1665,6 +1648,14 @@ and in future we hope to run experiments to confirm this.
 
 \chapter{Reinforcement Learning in Spiking Neural Networks\label{cha:snnrl}}
 
+There is immense value from the computational neuroscience perspective, in
+developing neural agents that are able to learn by interacting with the
+environment. These agents develop their own internal representations of the
+environment through unsupervised learning or reinforcement learning. Local
+learning rules (see~\autoref{sec:local-learning-rules}) like the Hebbian
+plasticity rule conduct such unsupervised learning, but these rules do not
+maximize a global reward, and cannot model goal-oriented agents.
+
 Recent advancements in training of spiking neural networks, in particular
 surrogate gradient methods (see~\autoref{sec:surrogate-gradients}), have opened
 up gradient-based Reinforcement Learning methods to spiking neural networks. It
@@ -1672,13 +1663,16 @@ is our belief that reinforcement learning is especially attractive for spiking
 neural networks, for the following reasons:
 
 \begin{enumerate}
+  \item Spiking neural networks bear a strong resemblance with biological neural
+    networks, allowing us to draw inspiration from biological neurons and how
+    they interact with the environment
   \item Many reinforcement learning environments are temporal in nature: the
     agent picks receives an observation, and performs an action at each
     timestep, affecting the environment. SNNs incorporate time into their
     operating model, and are well suited as agents.
   \item Reinforcement Learning is a commonly used paradigm for robotic
     applications, and neuromorphic hardware can be demonstrated to use
-    significantly less power (see ~\autoref{cha:neuromorphic}).
+    significantly less power (see~\autoref{cha:neuromorphic}).
 \end{enumerate}
 
 In this chapter, we evaluate the feasibility of SNNs in simple Reinforcement
@@ -1687,31 +1681,46 @@ with spiking neural agents.
 
 \section{Prior Work}
 
-The exploration of reinforcement learning in spiking neural networks
-has largely been limited to the exploration of its relations to
-plasticity-based methods such as the spike-timing-dependent-plasticity
-(STDP) rule. Reinforcement learning rules have been derived
-analytically for spiking neurons that fire stochastically
-\cite{florian2005}. It has also been shown that the modulation of STDP
-by a global reward signal leads to reinforcement learning
-\cite{florian07_reinf_learn_throug_modul_spike}. These spiking neural
-agents have in some cases been used in robotic tasks, such as
-target-reaching vehicles \cite{10.3389/fnbot.2019.00018}. However, such
-spiking neural agents have been primarily trained with
-plasticity-based methods, such as with reward-modulated STDP. Where
-reinforcement learning tasks are concerned, these tasks are often
-solved in a multi-agent setting
-\cite{VITANZA20153122,aenugu19_reinf_learn_with_spikin_coagen}.
+The exploration of reinforcement learning in spiking neural networks has largely
+been limited to the exploration of its relations to plasticity-based methods
+such as the spike-timing-dependent-plasticity (STDP) rule. The modulation of
+STDP by a global reward signal leads to reinforcement
+learning~\cite{florian07_reinf_learn_throug_modul_spike,baras07_reinf_learn_spike_time_depen}.
+The reward-modulated STDP rule was derived using reinforcement learning for
+spiking neurons that fire stochastically~\cite{florian2005}. This rule has been
+used to train spiking neural agents for robotic tasks, such as in
+target-reaching vehicles~\cite{10.3389/fnbot.2019.00018}. In a similar fashion,
+spiking neural models have been shown to be able to implement the actor-critic
+temporal-difference learning algorithm by combining local Hebbian plasticity
+rules with a global reward
+signal~\cite{potjans09_spikin_neural_networ_model_actor}. Where reinforcement
+learning tasks are concerned, these tasks are often solved in a multi-agent
+setting~\cite{VITANZA20153122,aenugu19_reinf_learn_with_spikin_coagen}.
+Frameworks such as BindsNET~\cite{10.3389/fninf.2018.00089} implement these
+learning rules, but have poor performance in reinforcement learning
+environments~\footnote{See
+  \url{https://github.com/BindsNET/bindsnet/issues/345}}.
 
-In this project, we consider a single-agent setting, and explore
-gradient-based spiking neural architectures, so that we can tap on the
-wealth of research on gradient-dependent reinforcement learning
-methods.
+Some works take inspiration from neuroscience, applying these concepts to boost
+the performance of deep learning models. For example, introducing differentiable
+plasticity rules to LSTMs have improved their performance on benchmark language
+modelling tasks~\cite{miconi2018backpropamine}. We are however more interested
+in applying advancements in deep learning to spiking neural networks.
+
+Beyond STDP learning rules, ANNs have been trained and converted into SNNs, and
+demonstrated competitive results in ATARI game environments with observations
+converted into binary inputs~\footnote{Paper by anonymous authors, found at
+  \url{https://bit.ly/2UVNpQT}}.
+
+In this project, we consider a single-agent setting, and explore the training of
+gradient-based spiking neural architectures end-to-end using recently-developed
+surrogate gradient methods, so that we can tap on the wealth of research on
+gradient-dependent reinforcement learning methods.
 
 \section{The ImageCartpole Environment}
 
 In our experiments, we use a modified version of the Cartpole-v0 environment by
-OpenAI. The Cartpole-v0 environment is described as follows~\cite{openai_gym}:
+OpenAI.\@ The Cartpole-v0 environment is described as follows~\cite{openai_gym}:
 
 \begin{quote} A pole is attached by an un-actuated joint to a cart, which moves
 along a frictionless track. The system is controlled by applying a force of +1
@@ -1778,12 +1787,11 @@ agents for 500 epochs.
   \centering \includegraphics[width=0.55\columnwidth]{images/ep-ret-mean.png}
   \caption{Mean episodic return of the two agents. The ANN agent is depicted in
     red, while the SNN agent is depicted in blue. The ANN agent solves the task
-    quicker than the SNN.}
-  \label{fig:ep-ret-mean}
+    quicker than the SNN.\label{fig:ep-ret-mean}}
 \end{figure}
 
 Our experimental results (see \autoref{fig:ep-ret-mean}) show that both the ANN
-and SNN agents are able to solve the ImageCartpole Environment. the ANN agent is
+and SNN agents are able to solve the ImageCartpole Environment. The ANN agent is
 able to solve the ImageCartPole environment within 50 epochs, while the SNN
 agent takes 300 epochs to obtain a solution. However, this suggests that
 Reinforcement Learning is still a viable method for learning spiking neural
@@ -1791,32 +1799,31 @@ agents.
 
 \section{Discussion}
 
-While the results were positive, over the course of the project new papers were
-uncovered that applies RL to spiking neural agents with great success. In
-particular, a paper\footnote{Paper by anonymous authors, found at
-  \url{https://bit.ly/2UVNpQT}} has been found to have similar setup and
-results. We decided to pivot and pursue a different research direction.
-
-As a closing thought, the current cartpole environment setup still does not
-fully exploit the benefits of spiking neural networks. For example, at each
-time-step, observations are converted to full spike trains. SNNs are often able
-to make predictions based on early spikes, albeit less reliable. This is not
-exploited in the current formulation, where a full spike train of fixed length
-is received before an action is taken.
+The results we obtained demonstrated that spiking neural agents can be directly
+trained end-to-end on simple reinforcement learning tasks. While the results
+were positive, the current environment setup does not fully exploit the benefit
+of spiking neural networks, and it is difficult to motivate the use of spiking
+neural networks in this context. At each time-step, observations are converted
+to full spike trains. SNNs are often able to make predictions based on early
+spikes, albeit less reliable. This is not exploited in the current formulation,
+where a full spike train of fixed length is received before an action is taken.
 
 One can imagine a RL environment with the following satisfied:
 
 \begin{enumerate}
   \item The action space should contain a no-op: in the case of the Cartpole
     environment, this is as simple as adding the action of not applying force to
-    the cart, instead of choosing between left or right
+    the cart, instead of choosing between left or right.
   \item At each observation, the observation should be spikes, rather than spike
-    trains
+  trains.
 \end{enumerate}
 
 The SNN agent receives spikes at each time-step, and after gaining enough
-confidence to take an action, it takes the action at that time-step. Perhaps SNN
-agents are able to solve such environments by exploiting the temporal
-information encoded in the relative timing between spikes.
+confidence to take an action, it takes the action at that time-step. SNN agents
+may be able to solve such environments by exploiting the temporal information
+encoded in the relative timing between spikes. We found it difficult to
+reconcile the temporal domain of the spiking neural network, and the RL
+environment to define a gradient-based learning algorithm that performs the
+appropriate credit-assignment, and hence decided to pause on this front.
 
 \end{document}
