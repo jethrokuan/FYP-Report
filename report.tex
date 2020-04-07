@@ -1683,14 +1683,15 @@ with spiking neural agents.
 
 The exploration of reinforcement learning in spiking neural networks has largely
 been limited to the exploration of its relations to plasticity-based methods
-such as the spike-timing-dependent-plasticity (STDP) rule. The modulation of
-STDP by a global reward signal leads to reinforcement
+such as the spike-timing-dependent-plasticity (STDP) rule. The reward-modulated
+STDP rule was derived using reinforcement learning for spiking neurons that fire
+stochastically~\cite{florian2005}. The modulation of STDP by a global reward
+signal leads to reinforcement
 learning~\cite{florian07_reinf_learn_throug_modul_spike,baras07_reinf_learn_spike_time_depen}.
-The reward-modulated STDP rule was derived using reinforcement learning for
-spiking neurons that fire stochastically~\cite{florian2005}. This rule has been
-used to train spiking neural agents for robotic tasks, such as in
-target-reaching vehicles~\cite{10.3389/fnbot.2019.00018}. In a similar fashion,
-spiking neural models have been shown to be able to implement the actor-critic
+These local update rules have been used to train spiking neural agents for
+robotic tasks, such as in target-reaching
+vehicles~\cite{10.3389/fnbot.2019.00018}. In a similar fashion, spiking neural
+models have been shown to be able to implement the actor-critic
 temporal-difference learning algorithm by combining local Hebbian plasticity
 rules with a global reward
 signal~\cite{potjans09_spikin_neural_networ_model_actor}. Where reinforcement
@@ -1707,14 +1708,15 @@ plasticity rules to LSTMs have improved their performance on benchmark language
 modelling tasks~\cite{miconi2018backpropamine}. We are however more interested
 in applying advancements in deep learning to spiking neural networks.
 
-Beyond STDP learning rules, ANNs have been trained and converted into SNNs, and
+Beyond STDP learning rules, ANNs have been trained and converted into SNNs using
+gradient-based reinforcement learning techniques such as Deep-Q learning, and
 demonstrated competitive results in ATARI game environments with observations
 converted into binary inputs~\footnote{Paper by anonymous authors, found at
   \url{https://bit.ly/2UVNpQT}}.
 
-In this project, we consider a single-agent setting, and explore the training of
-gradient-based spiking neural architectures end-to-end using recently-developed
-surrogate gradient methods, so that we can tap on the wealth of research on
+In this work, we consider a single-agent setting, and explore the training of
+gradient-based spiking neural architectures \emph{end-to-end} using recently
+developed surrogate gradient methods, tapping on the wealth of research on
 gradient-dependent reinforcement learning methods.
 
 \section{The ImageCartpole Environment}
